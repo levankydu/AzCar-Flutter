@@ -4,6 +4,8 @@ import 'package:az_car_flutter_app/data/carModel.dart';
 import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../data/OrderDetails.dart';
+
 class ApiService {
   static const String baseUrl = 'http://192.168.56.1:8081';
 
@@ -94,6 +96,17 @@ class ApiService {
       return responseData.map((json) => CarModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load cars');
+    }
+  }
+
+  static Future<List<OrderDetails>?> getOrdersList(String carId) async{
+    final response = await http.get(Uri.parse('$baseUrl/api/cars/getOrdersByCarId?carId=$carId'),headers: {'Content-Type': 'application/json'});
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(utf8.decode(response.bodyBytes));
+      print(responseData);
+      return responseData.map((json) => OrderDetails.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load orders');
     }
   }
 }

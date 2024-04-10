@@ -4,12 +4,15 @@ import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unicons/unicons.dart';
 
 import '../data/carModel.dart';
 import '../services/get_api_services.dart';
 import '../widgets/homePage/car.dart';
 import '../widgets/homePage/category.dart';
+import 'detais_page.dart';
 
 class AccordionPage extends StatefulWidget {
   static const headerStyle = TextStyle(
@@ -65,7 +68,7 @@ class _AccordionPageState extends State<AccordionPage> {
         contentBackgroundColor: Colors.white,
         contentBorderColor: Colors.green,
         contentBorderWidth: 2,
-        contentHorizontalPadding: 20,
+        contentHorizontalPadding: 0,
         scaleWhenAnimating: true,
         openAndCloseAnimation: true,
         headerPadding: const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
@@ -109,11 +112,37 @@ class _AccordionPageState extends State<AccordionPage> {
             leftIcon: const Icon(Icons.car_rental, color: Colors.white),
             header: const Text('My Registered Cars', style: AccordionPage.headerStyle),
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildCategory('My Register Car', size, themeData),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    top: size.height * 0.015,
+                    top: size.height * 0.001,
+                    left: size.width * 0.05,
+                  ),
+                  child: Text(
+                    'My Cars',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: themeData.secondaryHeaderColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.width * 0.055,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: size.height * 0.03,
+                    right: size.width * 0.05,
+                  ),
+                ),
+              ],
+            ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: size.height * 0.01,
                     left: size.width * 0.03,
                     right: size.width * 0.03,
                   ),
@@ -126,10 +155,129 @@ class _AccordionPageState extends State<AccordionPage> {
                       scrollDirection: Axis.horizontal,
                       itemCount: _carsFuture?.length,
                       itemBuilder: (context, i) {
-                        return buildCar(
-                          _carsFuture![i],
-                          size,
-                          themeData,
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: size.width * 0.03,
+                          ),
+                          child: Center(
+                            child: SizedBox(
+                              height: size.width * 0.55,
+                              width: size.width * 0.5,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: themeData.cardColor,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(
+                                      20,
+                                    ),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    left: size.width * 0.02,
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Get.to(DetailsPage(
+                                        car:  _carsFuture![i],
+                                      ));
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            top: size.height * 0.01,
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.topCenter,
+                                            child:
+                                            AspectRatio(
+
+                                              aspectRatio: 2.0,
+                                              child: Image(
+                                                image: NetworkImage(_carsFuture![i].images.isNotEmpty
+                                                    ? '${ApiService.baseUrl}/home/availablecars/flutter/img/${_carsFuture![i].images[0].urlImage.toString()}'
+                                                    : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
+                                                fit: BoxFit.cover, // Adjust the fit as needed
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            top: size.height * 0.01,
+                                          ),
+                                          child: Text(
+                                            _carsFuture![i].licensePlates,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.poppins(
+                                              color: themeData.secondaryHeaderColor,
+                                              fontSize: size.width * 0.05,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '${_carsFuture![i].carmodel.model}-${_carsFuture![i].carmodel.year}',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: themeData.secondaryHeaderColor,
+                                            fontSize: size.width * 0.03,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '${_carsFuture![i].price}\$',
+                                              style: GoogleFonts.poppins(
+                                                color: themeData.secondaryHeaderColor,
+                                                fontSize: size.width * 0.06,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              '/per day',
+                                              style: GoogleFonts.poppins(
+                                                color: themeData.primaryColor.withOpacity(0.8),
+                                                fontSize: size.width * 0.03,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                right: size.width * 0.025,
+                                              ),
+                                              child: SizedBox(
+                                                height: size.width * 0.1,
+                                                width: size.width * 0.1,
+                                                child: Container(
+                                                  decoration: const BoxDecoration(
+                                                    color: Color(0xff3b22a1),
+                                                    borderRadius: BorderRadius.all(
+                                                      Radius.circular(
+                                                        10,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: const Icon(
+                                                    UniconsLine.credit_card,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         );
                       },
                     ),
