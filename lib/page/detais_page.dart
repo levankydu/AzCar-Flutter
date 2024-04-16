@@ -1,35 +1,46 @@
-import 'package:az_car_flutter_app/data/carModel.dart';
-import 'package:az_car_flutter_app/services/get_api_services.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:unicons/unicons.dart';
-import 'dart:ui';
-class DetailsPage extends StatelessWidget {
-  final CarModel car;
 
+class DetailsPage extends StatefulWidget {
+  final String carImage;
+  final String carClass;
+  final String carName;
+  final int carPower;
+  final String people;
+  final String bags;
+  final int carPrice;
+  final String carRating;
+  final bool isRotated;
 
   const DetailsPage({
     Key? key,
-    required this.car,
+    required this.carImage,
+    required this.carClass,
+    required this.carName,
+    required this.carPower,
+    required this.people,
+    required this.bags,
+    required this.carPrice,
+    required this.carRating,
+    required this.isRotated,
   }) : super(key: key);
 
   @override
+  _DetailsPageState createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  @override
   Widget build(BuildContext context) {
-    final List<String> images = [
-       '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[0].urlImage.toString()}',
-      '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[1].urlImage.toString()}',
-      '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[2].urlImage.toString()}',
-      '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[3].urlImage.toString()}',
-      '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[4].urlImage.toString()}'
-      // Add more image URLs here
-    ];
     Size size = MediaQuery.of(context).size; //check the size of device
     ThemeData themeData = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50.0), //appbar size
+        preferredSize: const Size.fromHeight(40.0), //appbar size
         child: AppBar(
           bottomOpacity: 0.0,
           elevation: 0.0,
@@ -67,10 +78,9 @@ class DetailsPage extends StatelessWidget {
           leadingWidth: size.width * 0.15,
           title: Image.asset(
             themeData.brightness == Brightness.dark
-                ? 'assets/images/logo-azcar.png'
-                : 'assets/images/logo-azcar.png',
-            alignment: Alignment.bottomCenter,
-            height: size.height * 0.05,
+                ? 'assets/icons/SobGOGlight.png'
+                : 'assets/icons/SobGOGdark.png',
+            height: size.height * 0.06,
             width: size.width * 0.35,
           ),
           centerTitle: true,
@@ -95,72 +105,57 @@ class DetailsPage extends StatelessWidget {
                   ListView(
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      AspectRatio(
-                        aspectRatio: 2.0,
-                        child: Center(
-                          child: CarouselSlider(
-                            options: CarouselOptions(
-                              aspectRatio: 16 / 9,
-                              autoPlay: true,
-                              enlargeCenterPage: true,
-                            ),
-                            items: images.map((url) {
-                              return Builder(
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    margin: EdgeInsets.symmetric(horizontal: 1.0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey,
-                                    ),
-                                    child: Image.network(
-                                      url,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          ),
+                      widget.isRotated
+                          ? Image.asset(
+                        widget.carImage,
+                        height: size.width * 0.5,
+                        width: size.width * 0.8,
+                        fit: BoxFit.contain,
+                      )
+                          : Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(pi),
+                        child: Image.asset(
+                          widget.carImage,
+                          height: size.width * 0.5,
+                          width: size.width * 0.8,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Discount :${car.discount}%',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                color: themeData.primaryColor,
-                                fontSize: size.width * 0.04,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.carClass,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.primaryColor,
+                              fontSize: size.width * 0.04,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const Spacer(),
-                            Icon(
-                              Icons.star,
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow[800],
+                            size: size.width * 0.06,
+                          ),
+                          Text(
+                            widget.carRating,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
                               color: Colors.yellow[800],
-                              size: size.width * 0.06,
+                              fontSize: size.width * 0.04,
+                              fontWeight: FontWeight.bold,
                             ),
-                            Text(
-                              car.licensePlates,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                color: Colors.yellow[800],
-                                fontSize: size.width * 0.04,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       Row(
                         children: [
                           Text(
-                            '${car.carmodel.model}-${car.carmodel.year}',
+                            widget.carName,
                             textAlign: TextAlign.left,
                             style: GoogleFonts.poppins(
                               color: themeData.primaryColor,
@@ -170,7 +165,7 @@ class DetailsPage extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            '${car.price}\$',
+                            '${widget.carPrice}\$',
                             style: GoogleFonts.poppins(
                               color: themeData.primaryColor,
                               fontSize: size.width * 0.04,
@@ -196,7 +191,7 @@ class DetailsPage extends StatelessWidget {
                           children: [
                             buildStat(
                               UniconsLine.dashboard,
-                              '${car.fuelType} ',
+                              '${widget.carPower} KM',
                               'Power',
                               size,
                               themeData,
@@ -204,14 +199,14 @@ class DetailsPage extends StatelessWidget {
                             buildStat(
                               UniconsLine.users_alt,
                               'People',
-                              '( ${car.seatQty} )',
+                              '( ${widget.people} )',
                               size,
                               themeData,
                             ),
                             buildStat(
-                              UniconsLine.car,
-                              'Engine',
-                              ' ${car.engineInformationTranmission ? 'Auto' : 'Manual'} ',
+                              UniconsLine.briefcase,
+                              'Bags',
+                              '( ${widget.bags} )',
                               size,
                               themeData,
                             ),
@@ -223,7 +218,7 @@ class DetailsPage extends StatelessWidget {
                           vertical: size.height * 0.03,
                         ),
                         child: Text(
-                          'Car Location',
+                          'Select Location',
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor,
                             fontSize: size.width * 0.055,
@@ -253,7 +248,7 @@ class DetailsPage extends StatelessWidget {
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Icon(
                                         UniconsLine.map_marker,
@@ -261,36 +256,48 @@ class DetailsPage extends StatelessWidget {
                                         size: size.height * 0.05,
                                       ),
                                       Text(
-                                        car.address
-                                            .split(', ')
-                                            .sublist(
-                                                car.address.split(', ').length -
-                                                    2)
-                                            .join(', '),
+                                        'Katowice Airport',
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.poppins(
                                           color: themeData.primaryColor,
-                                          fontSize: size.width * 0.03,
+                                          fontSize: size.width * 0.05,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
-                                        car.address
-                                            .split(', ')
-                                            .sublist(
-                                                0,
-                                                car.address.split(', ').length -
-                                                    2)
-                                            .join(', '),
+                                        'Wolności 90, 42-625 Pyrzowice',
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.poppins(
                                           color: themeData.primaryColor
                                               .withOpacity(0.6),
-                                          fontSize: size.width * 0.03,
+                                          fontSize: size.width * 0.032,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: size.height * 0.15,
+                                  width: size.width * 0.25,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10),
+                                      ),
+                                    ),
+                                    child: Align(
+                                      child: Text(
+                                        'Map Preview',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: size.width * 0.04,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -311,12 +318,12 @@ class DetailsPage extends StatelessWidget {
   }
 
   Padding buildStat(
-    IconData icon,
-    String title,
-    String desc,
-    Size size,
-    ThemeData themeData,
-  ) {
+      IconData icon,
+      String title,
+      String desc,
+      Size size,
+      ThemeData themeData,
+      ) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: size.width * 0.015,
@@ -395,7 +402,7 @@ Align buildSelectButton(Size size) {
             ),
             child: Align(
               child: Text(
-                'Book this Car',
+                'Select',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.lato(
                   fontSize: size.height * 0.025,

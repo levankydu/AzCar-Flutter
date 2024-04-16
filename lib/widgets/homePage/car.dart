@@ -1,26 +1,14 @@
-import 'dart:convert';
-import 'package:az_car_flutter_app/services/get_api_services.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
-import 'dart:ui';
+
 import '../../data/carModel.dart';
 import '../../page/detais_page.dart';
-Future<List<CarModel>> getCarsData() async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? encodedCarList = prefs.getString('carList');
 
-  if (encodedCarList != null) {
-    final List<dynamic> decodedCarList = json.decode(encodedCarList);
-    final List<CarModel> carList = decodedCarList.map((carJson) => CarModel.fromJson(carJson)).toList();
-    return carList;
-  } else {
-    return [];
-  }
-}
-Padding buildCar(CarModel car, Size size, ThemeData themeData) {
+Padding buildCar(int i, Size size, ThemeData themeData) {
   return Padding(
     padding: EdgeInsets.only(
       right: size.width * 0.03,
@@ -45,7 +33,15 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
             child: InkWell(
               onTap: () {
                 Get.to(DetailsPage(
-                   car:  car,
+                  carImage: cars[i]['carImage'],
+                  carClass: cars[i]['carClass'],
+                  carName: cars[i]['carName'],
+                  carPower: cars[i]['carPower'],
+                  people: cars[i]['people'],
+                  bags: cars[i]['bags'],
+                  carPrice: cars[i]['carPrice'],
+                  carRating: cars[i]['carRating'],
+                  isRotated: cars[i]['isRotated'],
                 ));
               },
               child: Column(
@@ -57,15 +53,21 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                     ),
                     child: Align(
                       alignment: Alignment.topCenter,
-                      child:
-                      AspectRatio(
-                        
-                        aspectRatio: 2.0,
-                        child: Image(
-                          image: NetworkImage(car.images.isNotEmpty
-                              ? '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[0].urlImage.toString()}'
-                              : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
-                          fit: BoxFit.cover, // Adjust the fit as needed
+                      child: cars[i]['isRotated']
+                          ? Image.asset(
+                        cars[i]['carImage'],
+                        height: size.width * 0.25,
+                        width: size.width * 0.5,
+                        fit: BoxFit.contain,
+                      )
+                          : Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(pi),
+                        child: Image.asset(
+                          cars[i]['carImage'],
+                          height: size.width * 0.25,
+                          width: size.width * 0.5,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -75,7 +77,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                       top: size.height * 0.01,
                     ),
                     child: Text(
-                      car.licensePlates,
+                      cars[i]['carClass'],
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color: themeData.secondaryHeaderColor,
@@ -85,7 +87,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                     ),
                   ),
                   Text(
-                    '${car.carmodel.model}-${car.carmodel.year}',
+                    cars[i]['carName'],
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: themeData.secondaryHeaderColor,
@@ -96,7 +98,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                   Row(
                     children: [
                       Text(
-                        '${car.price}\$',
+                        '${cars[i]['carPrice']}\$',
                         style: GoogleFonts.poppins(
                           color: themeData.secondaryHeaderColor,
                           fontSize: size.width * 0.06,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
+
 Row buildCategory(String text, size, ThemeData themeData) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -24,6 +24,14 @@ Row buildCategory(String text, size, ThemeData themeData) {
         padding: EdgeInsets.only(
           top: size.height * 0.03,
           right: size.width * 0.05,
+        ),
+        child: Text(
+          'View All',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: themeData.primaryColor.withOpacity(0.8),
+            fontSize: size.width * 0.04,
+          ),
         ),
       ),
     ],

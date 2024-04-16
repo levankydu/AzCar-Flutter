@@ -2,7 +2,7 @@ import 'package:az_car_flutter_app/page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'dart:ui';
+
 import 'data/theme_data.dart';
 
 void main() async {

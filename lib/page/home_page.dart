@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:ui';
-import 'package:az_car_flutter_app/data/carModel.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,28 +21,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   UserModel? user;
   String emailLogin = '';
-  List<CarModel>? _carsFuture;
 
   @override
   void initState() {
     super.initState();
     getUserData();
-    getCarsData();
-  }
-
-  Future<List<CarModel>?> getCarsData() async {
-    final carList = await ApiService.getAllCars();
-    if (carList!.isNotEmpty) {
-      final List<Map<String, dynamic>> jsonList =
-          carList.map((car) => car.toJson()).toList();
-      final String encodedCarList = json.encode(jsonList);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('carList', encodedCarList);
-      setState(() {
-        _carsFuture = carList;
-      });
-    }
-    return null;
   }
 
   Future<UserModel?> getUserData() async {
@@ -59,6 +39,7 @@ class _HomePageState extends State<HomePage> {
           user = model;
         });
         await Future.delayed(Duration(seconds: 2));
+        return model;
       }
     }
     return null;
@@ -102,10 +83,10 @@ class _HomePageState extends State<HomePage> {
           titleSpacing: 0,
           leadingWidth: size.width * 0.15,
           title: Image.asset(
+            alignment: Alignment.bottomCenter,
             themeData.brightness == Brightness.dark
                 ? 'assets/images/logo-azcar.png'
                 : 'assets/images/logo-azcar.png',
-            alignment: Alignment.bottomCenter,
             height: size.height * 0.05,
             width: size.width * 0.35,
           ),
@@ -132,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                     child: ClipOval(
                       child: Image(
                         image: NetworkImage(user != null
-                            ? '${ApiService.baseUrl}/user/profile/flutter/avatar/${user?.image}'
+                            ? 'http://192.168.56.1:8081/user/profile/flutter/avatar/${user?.image}'
                             : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
                         fit: BoxFit.cover, // Adjust the fit as needed
                         width: double.infinity,
@@ -188,6 +169,7 @@ class _HomePageState extends State<HomePage> {
                       padding: EdgeInsets.only(
                         top: size.height * 0.01,
                         bottom: size.height * 0.05,
+
                       ),
                       child: Align(
                         child: Text(
@@ -205,7 +187,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             buildTopBrands(size, themeData),
-            buildMostRented(size, themeData, _carsFuture),
+            buildMostRented(size, themeData),
           ],
         ),
       ),

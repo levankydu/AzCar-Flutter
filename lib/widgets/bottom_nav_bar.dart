@@ -1,10 +1,11 @@
-import 'package:az_car_flutter_app/page/my_plan.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:unicons/unicons.dart';
+
+import '../page/login_register_page.dart';
 import 'bottom_nav_item.dart';
-import 'dart:ui';
+
 Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
   return BottomNavigationBar(
     iconSize: size.width * 0.07,
@@ -22,21 +23,15 @@ Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
       switch (value) {
         case 0:
           print(value);
-          break;
         case 1:
           print(value);
-          break;
         case 2:
           print(value);
-          break;
         case 3:
           print(value);
-          Get.to(()=>MyPlanScreen());
-          break;
         case 4:
           print(value);
           Get.to(()=>MyProfileScreen());
-          break;
 
         default:
           break;
@@ -50,7 +45,7 @@ Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
         size,
       ),
       buildBottomNavItem(UniconsLine.user, themeData, size),
-      buildBottomNavItem(UniconsLine.car_sideview, themeData, size),
+      buildBottomNavItem(UniconsLine.apps, themeData, size),
       buildBottomNavItem(
         UniconsLine.user_check,
         themeData,
