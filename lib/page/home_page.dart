@@ -55,6 +55,8 @@ class _HomePageState extends State<HomePage> {
       final String action = prefs.getString('emailLogin')!;
       var model = await ApiService.getUserByEmail(action);
       if (model != null) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('id', model.id.toString());
         setState(() {
           user = model;
         });

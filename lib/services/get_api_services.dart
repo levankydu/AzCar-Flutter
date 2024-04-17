@@ -9,7 +9,7 @@ import '../data/OrderDetails.dart';
 class ApiService {
   //Tu ip: 172.16.2.244
   //Du ip: 192.168.56.1
-  static const String baseUrl = 'http://192.168.1.144:8081';
+  static const String baseUrl = 'http://172.16.1.130:8081';
 
   static Future<List<UserModel>> fetchPosts() async {
     final response = await http.get(Uri.parse('$baseUrl/api/auth/getUsers'));

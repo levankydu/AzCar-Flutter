@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,14 +31,6 @@ class _DetailsPageState extends State<DetailsPage> {
   late TextEditingController fromDateController;
   late TextEditingController toDateController;
   late List<Province> provinces;
-  String selectedProvince = '';
-  bool isProvinceDataLoaded = false;
-  late List<District> districts;
-  String selectedDistrict = '';
-  bool isDistrictDataLoaded = false;
-  late List<Ward> wards;
-  String selectedWard = '';
-  bool isWardDataLoaded = false;
 
   @override
   void initState() {
@@ -48,8 +42,6 @@ class _DetailsPageState extends State<DetailsPage> {
             '${ApiService.baseUrl}/home/availablecars/flutter/img/${image.urlImage.toString()}')
         .toList();
     provinces = [];
-    districts = [];
-    wards = [];
     fetchProvinceData();
   }
 
@@ -68,7 +60,6 @@ class _DetailsPageState extends State<DetailsPage> {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
         provinces = data.map((json) => Province.fromJson(json)).toList();
-        isProvinceDataLoaded = true;
       });
     } else {
       throw Exception('Failed to load data');
@@ -76,13 +67,14 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<List<District>> fetchDistrictData(String provinceCode) async {
-    final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/api/cars/getDistricts?$provinceCode'),
-        headers: {'Content-Type': 'application/json'});
+    String url =
+        '${ApiService.baseUrl}/api/cars/getDistricts?provinceCode=$provinceCode';
+    final response = await http
+        .get(headers: {'Content-Type': 'application/json'}, Uri.parse(url));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      districts = data.map((json) => District.fromJson(json)).toList();
-      isDistrictDataLoaded = true;
+      List<District> districts =
+          data.map((json) => District.fromJson(json)).toList();
       return districts;
     } else {
       throw Exception('Failed to load districts');
@@ -91,12 +83,12 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<List<Ward>> fetchWardData(String districtCode) async {
     final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/api/cars/getWards?$districtCode'),
+        Uri.parse(
+            '${ApiService.baseUrl}/api/cars/getWards?districtCode=$districtCode'),
         headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      wards = data.map((json) => Ward.fromJson(json)).toList();
-      isWardDataLoaded = true;
+      List<Ward> wards = data.map((json) => Ward.fromJson(json)).toList();
       return wards;
     } else {
       throw Exception('Failed to load ward data');
@@ -206,17 +198,11 @@ class _DetailsPageState extends State<DetailsPage> {
                     ],
                   ),
                   SelectDateAndLocationWidget(
+                    car: widget.car,
                     size: size,
                     fromDateController: fromDateController,
                     toDateController: toDateController,
-                    updateUI: () => setState(() {}),
                     provinces: provinces,
-                    selectedProvince: selectedProvince,
-                    isProvinceDataLoaded: isProvinceDataLoaded,
-                    districts: districts,
-                    selectedDistrict: selectedDistrict,
-                    wards: wards,
-                    selectedWard: selectedWard,
                     fetchDistrictData: fetchDistrictData,
                     fetchWardData: fetchWardData,
                   ),
@@ -292,7 +278,7 @@ class CarDetailsWidget extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '${car.price}\$',
+              '${(car.price - (car.price * car.discount / 100)).toStringAsFixed(2)}\$',
               style: GoogleFonts.poppins(
                 color: themeData.primaryColor,
                 fontSize: size.width * 0.04,
@@ -479,37 +465,42 @@ class CarDetailsWidget extends StatelessWidget {
   }
 }
 
-class SelectDateAndLocationWidget extends StatelessWidget {
+class SelectDateAndLocationWidget extends StatefulWidget {
+  final CarModel car;
   final Size size;
   final TextEditingController fromDateController;
   final TextEditingController toDateController;
-  final Function updateUI;
   final List<Province> provinces;
-  final String selectedProvince;
-  final bool isProvinceDataLoaded;
-  final List<District> districts;
-  final String selectedDistrict;
-  final List<Ward> wards;
-  final String selectedWard;
   final Future<List<District>> Function(String) fetchDistrictData;
   final Future<List<Ward>> Function(String) fetchWardData;
 
-  const SelectDateAndLocationWidget({
-    Key? key,
+  SelectDateAndLocationWidget({
+    super.key,
     required this.size,
     required this.fromDateController,
     required this.toDateController,
-    required this.updateUI,
     required this.provinces,
-    required this.selectedProvince,
-    required this.isProvinceDataLoaded,
-    required this.districts,
-    required this.selectedDistrict,
-    required this.wards,
-    required this.selectedWard,
     required this.fetchDistrictData,
     required this.fetchWardData,
-  }) : super(key: key);
+    required this.car,
+  });
+
+  @override
+  State<SelectDateAndLocationWidget> createState() =>
+      _SelectDateAndLocationWidgetState();
+}
+
+class _SelectDateAndLocationWidgetState
+    extends State<SelectDateAndLocationWidget> {
+  late String provinceFullName = '';
+  late String districtFullName = '';
+  late String wardFullName = '';
+  late List<District> districts = [];
+  late String selectedDistrict = '';
+  late List<Ward> wards = [];
+  late String selectedWard = '';
+  late String selectedProvince = '';
+  late SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
@@ -517,11 +508,11 @@ class SelectDateAndLocationWidget extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Padding(
         padding: EdgeInsets.only(
-          bottom: size.height * 0.01,
+          bottom: widget.size.height * 0.01,
         ),
         child: SizedBox(
-          height: size.height * 0.07,
-          width: size.width,
+          height: widget.size.height * 0.07,
+          width: widget.size.width,
           child: InkWell(
             onTap: () {
               showModalBottomSheet<void>(
@@ -553,7 +544,7 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                   child: Text('Order Booking'),
                                 ),
                                 TextField(
-                                  controller: fromDateController,
+                                  controller: widget.fromDateController,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'From Date',
@@ -569,8 +560,9 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                       String formattedDate =
                                           DateFormat('dd-MM-yyyy')
                                               .format(pickedDate);
-                                      fromDateController.text = formattedDate;
-                                      updateUI();
+                                      widget.fromDateController.text =
+                                          formattedDate;
+                                      setState(() {});
                                       Future.delayed(
                                         Duration(milliseconds: 100),
                                         () {
@@ -582,7 +574,7 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                 ),
                                 SizedBox(height: 20),
                                 TextField(
-                                  controller: toDateController,
+                                  controller: widget.toDateController,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'To Date',
@@ -598,8 +590,9 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                       String formattedDate =
                                           DateFormat('dd-MM-yyyy')
                                               .format(pickedDate);
-                                      toDateController.text = formattedDate;
-                                      updateUI();
+                                      widget.toDateController.text =
+                                          formattedDate;
+                                      setState(() {});
                                       Future.delayed(
                                         Duration(milliseconds: 100),
                                         () {
@@ -619,24 +612,22 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                       : null,
                                   hint: Text('Province'),
                                   onChanged: (String? newValue) async {
-                                    final state =
-                                        context.findAncestorStateOfType<
-                                            _DetailsPageState>();
-                                    if (state != null) {
-                                      state.setState(() {
-                                        state.selectedProvince = newValue!;
+                                    if (newValue != null) {
+                                      final districts = await widget
+                                          .fetchDistrictData(newValue);
+                                      setState(() {
+                                        selectedProvince = newValue;
+                                        this.districts = districts;
+                                        selectedDistrict = '';
                                       });
-                                      final districts = await state
-                                          .fetchDistrictData(newValue!);
-                                      state.setState(() {
-                                        state.districts = districts;
-                                      });
+                                      Navigator.pop(context, districts);
                                     }
                                   },
-                                  items: provinces.map((Province province) {
+                                  items:
+                                      widget.provinces.map((Province province) {
                                     return DropdownMenuItem<String>(
                                       value: province.code,
-                                      child: Text(province.name),
+                                      child: Text(province.fullName),
                                     );
                                   }).toList(),
                                 ),
@@ -651,24 +642,19 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                         : null,
                                     hint: Text('District'),
                                     onChanged: (String? newValue) async {
-                                      final state =
-                                          context.findAncestorStateOfType<
-                                              _DetailsPageState>();
-                                      if (state != null) {
-                                        state.setState(() {
-                                          state.selectedDistrict = newValue!;
-                                        });
-                                        final wards = await state
-                                            .fetchWardData(newValue!);
-                                        state.setState(() {
-                                          state.wards = wards;
-                                        });
-                                      }
+                                      final wards =
+                                          await widget.fetchWardData(newValue!);
+                                      setState(() {
+                                        selectedDistrict = newValue;
+                                        this.wards = wards;
+                                        selectedWard = '';
+                                      });
+                                      Navigator.pop(context, wards);
                                     },
                                     items: districts.map((District district) {
                                       return DropdownMenuItem<String>(
                                         value: district.code,
-                                        child: Text(district.name),
+                                        child: Text(district.fullName),
                                       );
                                     }).toList(),
                                   ),
@@ -683,26 +669,64 @@ class SelectDateAndLocationWidget extends StatelessWidget {
                                         : null,
                                     hint: Text('Ward'),
                                     onChanged: (String? newValue) {
-                                      final state =
-                                          context.findAncestorStateOfType<
-                                              _DetailsPageState>();
-                                      if (state != null) {
-                                        state.setState(() {
-                                          state.selectedWard = newValue!;
-                                        });
-                                      }
+                                      selectedWard = newValue!;
                                     },
                                     items: wards.map((Ward ward) {
                                       return DropdownMenuItem<String>(
                                         value: ward.code,
-                                        child: Text(ward.name),
+                                        child: Text(ward.fullName),
                                       );
                                     }).toList(),
                                   ),
                                 SizedBox(height: 20),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    // Handle booking logic here
+                                  onPressed: () async {
+                                    prefs = await SharedPreferences.getInstance();
+                                    final String email = prefs.getString('emailLogin')!;
+                                    final String id = prefs.getString('id')!;
+                                    Province province = widget.provinces.firstWhere((i) => i.code == selectedProvince);
+                                    District district = districts.firstWhere((i) => i.code == selectedDistrict);
+                                    Ward ward = wards.firstWhere((i) => i.code == selectedWard);
+                                    final response = await http.post(
+                                      Uri.parse('${ApiService.baseUrl}/api/cars/postOrderDetails'),
+                                      headers: <String, String>{
+                                        'Content-Type':
+                                            'application/json; charset=UTF-8',
+                                      },
+                                      body: jsonEncode(<String, String>{
+                                        'fromDate': widget.fromDateController.text,
+                                        'toDate': widget.toDateController.text,
+                                        'ward': ward.fullName,
+                                        'district': district.fullName,
+                                        'province': province.fullName,
+                                        'carId': widget.car.id.toString(),
+                                        'userEmail': email,
+                                        'userId': id,
+                                      }),
+                                    );
+                                    if (response.statusCode == 200) {
+                                      print(response.statusCode);
+                                      print(response.body);
+                                      String message = "Greate, your order is signed up successfully!";
+                                      await Fluttertoast.showToast(
+                                          msg: response.body,
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.TOP,
+                                          timeInSecForIosWeb: 11111000,
+                                          backgroundColor: response.body == message ? Colors.green : Colors.amber,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0
+                                      );
+                                    } else {
+                                      await Fluttertoast.showToast(
+                                        msg: "Something happened, please try again",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.TOP,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0,
+                                      );
+                                    }
                                   },
                                   child: Text('Book Now'),
                                 ),
@@ -723,11 +747,11 @@ class SelectDateAndLocationWidget extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  'Select Date',
+                  'Book',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: size.width * 0.05,
+                    fontSize: widget.size.width * 0.05,
                   ),
                 ),
               ),
