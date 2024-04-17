@@ -501,6 +501,7 @@ class _SelectDateAndLocationWidgetState
   late String selectedWard = '';
   late String selectedProvince = '';
   late SharedPreferences prefs;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -550,25 +551,36 @@ class _SelectDateAndLocationWidgetState
                                     labelText: 'From Date',
                                   ),
                                   onTap: () async {
+                                    DateTime initialDate = widget
+                                            .fromDateController.text.isNotEmpty
+                                        ? DateFormat('dd-MM-yyyy HH:mm:ss.S')
+                                            .parse(
+                                                widget.fromDateController.text +
+                                                    ' 00:00:00.000')
+                                        : DateTime.now();
                                     DateTime? pickedDate = await showDatePicker(
                                       context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2024),
+                                      initialDate: initialDate,
+                                      firstDate: DateTime.now(),
+                                      // Disable dates before today
                                       lastDate: DateTime(2026),
                                     );
                                     if (pickedDate != null) {
-                                      String formattedDate =
+                                      DateTime fromDate = pickedDate;
+                                      DateTime toDate =
+                                          fromDate.add(Duration(days: 1));
+                                      String formattedFromDate =
                                           DateFormat('dd-MM-yyyy')
-                                              .format(pickedDate);
+                                              .format(fromDate);
+                                      String formattedToDate =
+                                          DateFormat('dd-MM-yyyy')
+                                              .format(toDate);
                                       widget.fromDateController.text =
-                                          formattedDate;
+                                          formattedFromDate;
+                                      widget.toDateController.text =
+                                          formattedToDate;
                                       setState(() {});
-                                      Future.delayed(
-                                        Duration(milliseconds: 100),
-                                        () {
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                      );
+                                      FocusScope.of(context).unfocus();
                                     }
                                   },
                                 ),
@@ -580,11 +592,48 @@ class _SelectDateAndLocationWidgetState
                                     labelText: 'To Date',
                                   ),
                                   onTap: () async {
+                                    DateTime initialDate = widget
+                                            .toDateController.text.isNotEmpty
+                                        ? DateFormat('dd-MM-yyyy HH:mm:ss.S')
+                                            .parse(
+                                                widget.toDateController.text +
+                                                    ' 00:00:00.000')
+                                        : (widget.fromDateController.text
+                                                .isNotEmpty
+                                            ? DateFormat('dd-MM-yyyy').parse(
+                                                widget.fromDateController.text)
+                                            : DateTime.now());
+                                    DateTime firstSelectableDate =
+                                        DateTime.now();
+                                    if (widget
+                                        .fromDateController.text.isNotEmpty) {
+                                      firstSelectableDate =
+                                          DateFormat('dd-MM-yyyy').parse(
+                                              widget.fromDateController.text);
+                                    }
                                     DateTime? pickedDate = await showDatePicker(
                                       context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2024),
+                                      initialDate: initialDate,
+                                      firstDate: firstSelectableDate,
                                       lastDate: DateTime(2026),
+                                      selectableDayPredicate: (DateTime date) {
+                                        if (widget.fromDateController.text
+                                            .isNotEmpty) {
+                                          DateTime fromDate =
+                                              DateFormat('dd-MM-yyyy').parse(
+                                                  widget
+                                                      .fromDateController.text);
+                                          if (date.isBefore(fromDate) ||
+                                              date.isAtSameMomentAs(fromDate)) {
+                                            return false; // Disable dates before or same as from date
+                                          }
+                                        } else {
+                                          if (date.isBefore(DateTime.now())) {
+                                            return false; // Disable dates before today if from date is not set
+                                          }
+                                        }
+                                        return true; // Enable other dates
+                                      },
                                     );
                                     if (pickedDate != null) {
                                       String formattedDate =
@@ -592,13 +641,7 @@ class _SelectDateAndLocationWidgetState
                                               .format(pickedDate);
                                       widget.toDateController.text =
                                           formattedDate;
-                                      setState(() {});
-                                      Future.delayed(
-                                        Duration(milliseconds: 100),
-                                        () {
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                      );
+                                      FocusScope.of(context).unfocus();
                                     }
                                   },
                                 ),
@@ -681,54 +724,90 @@ class _SelectDateAndLocationWidgetState
                                 SizedBox(height: 20),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    prefs = await SharedPreferences.getInstance();
-                                    final String email = prefs.getString('emailLogin')!;
-                                    final String id = prefs.getString('id')!;
-                                    Province province = widget.provinces.firstWhere((i) => i.code == selectedProvince);
-                                    District district = districts.firstWhere((i) => i.code == selectedDistrict);
-                                    Ward ward = wards.firstWhere((i) => i.code == selectedWard);
-                                    final response = await http.post(
-                                      Uri.parse('${ApiService.baseUrl}/api/cars/postOrderDetails'),
-                                      headers: <String, String>{
-                                        'Content-Type':
-                                            'application/json; charset=UTF-8',
-                                      },
-                                      body: jsonEncode(<String, String>{
-                                        'fromDate': widget.fromDateController.text,
-                                        'toDate': widget.toDateController.text,
-                                        'ward': ward.fullName,
-                                        'district': district.fullName,
-                                        'province': province.fullName,
-                                        'carId': widget.car.id.toString(),
-                                        'userEmail': email,
-                                        'userId': id,
-                                      }),
-                                    );
-                                    if (response.statusCode == 200) {
-                                      print(response.statusCode);
-                                      print(response.body);
-                                      String message = "Greate, your order is signed up successfully!";
-                                      await Fluttertoast.showToast(
-                                          msg: response.body,
-                                          toastLength: Toast.LENGTH_LONG,
+                                    setState(() {
+                                      isLoading =
+                                          true; // Hiển thị loader khi nhấn vào nút
+                                    });
+                                    try {
+                                      prefs =
+                                          await SharedPreferences.getInstance();
+                                      final String email =
+                                          prefs.getString('emailLogin')!;
+                                      final String id = prefs.getString('id')!;
+                                      Province province = widget.provinces
+                                          .firstWhere((i) =>
+                                              i.code == selectedProvince);
+                                      District district = districts.firstWhere(
+                                          (i) => i.code == selectedDistrict);
+                                      Ward ward = wards.firstWhere(
+                                          (i) => i.code == selectedWard);
+                                      final response = await http.post(
+                                        Uri.parse(
+                                            '${ApiService.baseUrl}/api/cars/postOrderDetails'),
+                                        headers: <String, String>{
+                                          'Content-Type':
+                                              'application/json; charset=UTF-8',
+                                        },
+                                        body: jsonEncode(<String, String>{
+                                          'fromDate':
+                                              widget.fromDateController.text,
+                                          'toDate':
+                                              widget.toDateController.text,
+                                          'ward': ward.fullName,
+                                          'district': district.fullName,
+                                          'province': province.fullName,
+                                          'carId': widget.car.id.toString(),
+                                          'userEmail': email,
+                                          'userId': id,
+                                        }),
+                                      );
+                                      if (response.statusCode == 200) {
+                                        print(response.statusCode);
+                                        print(response.body);
+                                        String message =
+                                            'Great, your order is signed up successfully!';
+                                        await Fluttertoast.showToast(
+                                            msg: response.body,
+                                            toastLength: Toast.LENGTH_LONG,
+                                            gravity: ToastGravity.TOP,
+                                            timeInSecForIosWeb: 5,
+                                            backgroundColor:
+                                                response.body == message
+                                                    ? Colors.green
+                                                    : Colors.amber,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0);
+                                        Navigator.pop(context);
+                                        if (response.body == message) {
+                                          setState(() {
+                                            widget.fromDateController.text = '';
+                                            widget.toDateController.text = '';
+                                            selectedProvince = '';
+                                            selectedDistrict = '';
+                                            selectedWard = '';
+                                          });
+                                        }
+                                      } else {
+                                        await Fluttertoast.showToast(
+                                          msg:
+                                              'Something happened, please try again',
+                                          toastLength: Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.TOP,
-                                          timeInSecForIosWeb: 11111000,
-                                          backgroundColor: response.body == message ? Colors.green : Colors.amber,
+                                          backgroundColor: Colors.red,
                                           textColor: Colors.white,
-                                          fontSize: 16.0
-                                      );
-                                    } else {
-                                      await Fluttertoast.showToast(
-                                        msg: "Something happened, please try again",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0,
-                                      );
+                                          fontSize: 16.0,
+                                        );
+                                      }
+                                    } finally {
+                                      setState(() {
+                                        isLoading =
+                                            false; // Ẩn loader khi nhận được phản hồi từ máy chủ
+                                      });
                                     }
                                   },
-                                  child: Text('Book Now'),
+                                  child: isLoading
+                                      ? CircularProgressIndicator()
+                                      : Text('Book Now'),
                                 ),
                               ],
                             ),
