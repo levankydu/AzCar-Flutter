@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:az_car_flutter_app/data/carModel.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
+import 'package:az_car_flutter_app/widgets/homePage/car_register.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -208,6 +209,17 @@ class _HomePageState extends State<HomePage> {
             ),
             buildTopBrands(size, themeData),
             buildMostRented(size, themeData, _carsFuture),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CarRegister(),
+                  ),
+                );
+              },
+              child: Text('Register Car'),
+            ),
           ],
         ),
       ),

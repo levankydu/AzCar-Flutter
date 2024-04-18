@@ -555,8 +555,7 @@ class _SelectDateAndLocationWidgetState
                                             .fromDateController.text.isNotEmpty
                                         ? DateFormat('dd-MM-yyyy HH:mm:ss.S')
                                             .parse(
-                                                widget.fromDateController.text +
-                                                    ' 00:00:00.000')
+                                                '${widget.fromDateController.text} 00:00:00.000')
                                         : DateTime.now();
                                     DateTime? pickedDate = await showDatePicker(
                                       context: context,
@@ -596,8 +595,7 @@ class _SelectDateAndLocationWidgetState
                                             .toDateController.text.isNotEmpty
                                         ? DateFormat('dd-MM-yyyy HH:mm:ss.S')
                                             .parse(
-                                                widget.toDateController.text +
-                                                    ' 00:00:00.000')
+                                                '${widget.toDateController.text} 00:00:00.000')
                                         : (widget.fromDateController.text
                                                 .isNotEmpty
                                             ? DateFormat('dd-MM-yyyy').parse(
