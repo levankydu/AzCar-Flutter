@@ -135,4 +135,83 @@ class ApiService {
       throw Exception('Failed to load orders');
     }
   }
+
+    static Future<UserModel?> editUser(UserModel userModel) async {
+    final response = await http.post(Uri.parse('$baseUrl/editUser'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(userModel.toJson()));
+    if (response.statusCode == 200) {
+      try {
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          return UserModel.fromJson(data);
+        } else {
+          return null;
+        }
+      } catch (e) {
+        print('Error decoding JSON: $e');
+        return null;
+      }
+    } else {
+      print('HTTP Error: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  static Future<bool> forgotPassword(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/forgot_password'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> tokenProcess(String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/tokenProcess'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'token': token,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+static Future<bool> resetPassword(String token, String password) async {
+  final response = await http.post(
+    Uri.parse('$baseUrl/resetPassword'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'token': token,
+      'password': password
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
 }
