@@ -101,6 +101,30 @@ class ApiService {
     }
   }
 
+  static Future<List<CarModel>?> getAllCarsByUser(String emailLogin) async {
+    final response = await http.get(Uri.parse('$baseUrl/api/cars/getCarsByUser?emailLogin=$emailLogin'),headers: {'Content-Type': 'application/json'});
+    if (response.statusCode == 200) {
+
+      final List<dynamic> responseData = json.decode(utf8.decode(response.bodyBytes));
+      print(responseData);
+      return responseData.map((json) => CarModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load cars');
+    }
+  }
+
+  static Future<List<CarModel>?> getCarsExceptUserCar(String emailLogin) async {
+    final response = await http.get(Uri.parse('$baseUrl/api/cars/getCarsExceptUserCar?emailLogin=$emailLogin'),headers: {'Content-Type': 'application/json'});
+    if (response.statusCode == 200) {
+
+      final List<dynamic> responseData = json.decode(utf8.decode(response.bodyBytes));
+      print(responseData);
+      return responseData.map((json) => CarModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load cars');
+    }
+  }
+
   static Future<List<OrderDetails>?> getOrdersList(String carId) async{
     final response = await http.get(Uri.parse('$baseUrl/api/cars/getOrdersByCarId?carId=$carId'),headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {

@@ -35,12 +35,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<CarModel>?> getCarsData() async {
-    final carList = await ApiService.getAllCars();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final carList = await ApiService.getCarsExceptUserCar(prefs.getString('emailLogin')!);
     if (carList!.isNotEmpty) {
       final List<Map<String, dynamic>> jsonList =
           carList.map((car) => car.toJson()).toList();
       final String encodedCarList = json.encode(jsonList);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
       await prefs.setString('carList', encodedCarList);
       setState(() {
         _carsFuture = carList;
