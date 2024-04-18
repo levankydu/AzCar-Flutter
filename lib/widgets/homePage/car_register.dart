@@ -47,6 +47,7 @@ class _CarRegisterState extends State<CarRegister> {
   late TextEditingController cleaningFee = TextEditingController();
   late TextEditingController decorationFee = TextEditingController();
   late TextEditingController rules = TextEditingController();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -165,7 +166,7 @@ class _CarRegisterState extends State<CarRegister> {
     District district = districts.firstWhere((i) => i.code == selectedDistrict);
     Ward ward = wards.firstWhere((i) => i.code == selectedWard);
     final response = await http.post(
-      Uri.parse('${ApiService.baseUrl}/api/cars/postOrderDetails'),
+      Uri.parse('${ApiService.baseUrl}/api/cars/postCarRegister'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -561,12 +562,24 @@ class _CarRegisterState extends State<CarRegister> {
               SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // chỗ này là submit nè thầy dự, thầy đợi tui rảnh thì tui làm dùm, còn không thì thêm tiền thì tui rảnh liền
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        // await submitFunction();
+                        // chỗ này là submit nè thầy dự, thầy đợi tui rảnh thì tui làm dùm, còn không thì thêm tiền thì tui rảnh liền
+                      } finally {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
                     }
                   },
-                  child: Text('Submit'),
+                  child: isLoading
+                      ? CircularProgressIndicator()
+                      : Text('Registration Submit'),
                 ),
               )
             ],
