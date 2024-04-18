@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:az_car_flutter_app/services/get_api_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'file_picker_demo.dart';
+
 class CarRegister extends StatefulWidget {
   const CarRegister({super.key});
 
@@ -556,6 +558,12 @@ class _CarRegisterState extends State<CarRegister> {
                 },
               ),
               SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: (){
+                    FilePickerDemo();
+                  },
+                  child: Text("Up anh"),
+              ),
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
