@@ -22,13 +22,9 @@ Future<List<CarModel>> getCarsData() async {
 }
 Padding buildCar(CarModel car, Size size, ThemeData themeData) {
   return Padding(
-    padding: EdgeInsets.only(
-      right: size.width * 0.03,
-    ),
+    padding: EdgeInsets.symmetric(horizontal: size.width * 0.03, vertical: size.height * 0.01), // Thêm khoảng cách ngang và dọc
     child: Center(
       child: SizedBox(
-        height: size.width * 0.55,
-        width: size.width * 0.5,
         child: Container(
           decoration: BoxDecoration(
             color: themeData.cardColor,
@@ -37,10 +33,19 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                 20,
               ),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
           ),
           child: Padding(
             padding: EdgeInsets.only(
               left: size.width * 0.02,
+              right: size.width * 0.02,
             ),
             child: InkWell(
               onTap: () {
@@ -57,15 +62,26 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                     ),
                     child: Align(
                       alignment: Alignment.topCenter,
-                      child:
-                      AspectRatio(
-                        
-                        aspectRatio: 2.0,
-                        child: Image(
-                          image: NetworkImage(car.images.isNotEmpty
-                              ? '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[0].urlImage.toString()}'
-                              : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
-                          fit: BoxFit.cover, // Adjust the fit as needed
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: themeData.cardColor,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(13),
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(13), // Border radius cho hình ảnh
+                          child: AspectRatio(
+                            aspectRatio: 2.0,
+                            child: Image(
+                              image: NetworkImage(
+                                car.images.isNotEmpty
+                                    ? '${ApiService.baseUrl}/home/availablecars/flutter/img/${car.images[0].urlImage.toString()}'
+                                    : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -96,7 +112,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                   Row(
                     children: [
                       Text(
-                        '${car.price}\$',
+                        '\$${car.price}',
                         style: GoogleFonts.poppins(
                           color: themeData.secondaryHeaderColor,
                           fontSize: size.width * 0.06,
@@ -117,8 +133,6 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                           right: size.width * 0.025,
                         ),
                         child: SizedBox(
-                          height: size.width * 0.1,
-                          width: size.width * 0.1,
                           child: Container(
                             decoration: const BoxDecoration(
                               color: Color(0xff3b22a1),

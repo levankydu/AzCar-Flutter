@@ -155,73 +155,89 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: buildBottomNavBar(1, size, themeData),
       backgroundColor: themeData.colorScheme.background,
       body: SafeArea(
-        child: ListView(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(
-                top: size.height * 0.02,
-                left: size.width * 0.05,
-                right: size.width * 0.05,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(15),
-                  ),
-                  color: themeData.cardColor, //section bg color
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  top: size.height * 0.02,
+                  left: size.width * 0.05,
+                  right: size.width * 0.05,
                 ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.02,
-                      ),
-                      child: Align(
-                        child: Text(
-                          'With Corporate Difference',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.06,
-                            fontWeight: FontWeight.bold,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(15),
+                    ),
+                    color: themeData.cardColor, //section bg color
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: size.height * 0.02,
+                        ),
+                        child: Align(
+                          child: Text(
+                            'With Corporate Difference',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.06,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.01,
-                        bottom: size.height * 0.05,
-                      ),
-                      child: Align(
-                        child: Text(
-                          'Enjoy the fun driving in Enterprise',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.035,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: size.height * 0.01,
+                          bottom: size.height * 0.05,
+                        ),
+                        child: Align(
+                          child: Text(
+                            'Enjoy the fun driving in Enterprise',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.035,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            buildTopBrands(size, themeData),
-            buildMostRented(size, themeData, _carsFuture),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CarRegister(),
+              buildTopBrands(size, themeData),
+              Padding(
+                padding: const EdgeInsets.all(50.0),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(bottom: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CarRegister(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      backgroundColor: themeData.secondaryHeaderColor,
+                    ),
+                    child: Text(
+                      'Need To Register A Car?',
+                      style: TextStyle(fontSize: 18.0, color: Colors.white), // Kích thước chữ
+                    ),
                   ),
-                );
-              },
-              child: Text('Register Car'),
-            ),
-          ],
+                ),
+              ),
+              buildMostRented(size, themeData, _carsFuture),
+            ],
+          ),
         ),
       ),
     );
