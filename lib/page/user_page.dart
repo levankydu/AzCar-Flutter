@@ -104,9 +104,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     ThemeData themeData = Theme.of(context);
-    DateTime? selectedDate = user!.dob;
-    DateTime maxDate = DateTime.now();
-    DateTime? minDate = DateTime.now().subtract(const Duration(days: 18 * 365));
     return Scaffold(
       appBar: AppBar(
         bottomOpacity: 0.0,
@@ -541,6 +538,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           showModalBottomSheet<void>(
                             context: context,
                             builder: (BuildContext context) {
+                              DateTime? selectedDate = user!
+                                  .dob; // Khởi tạo selectedDate với giá trị ban đầu từ user.dob
+
                               return SizedBox(
                                 height: 200,
                                 child: Center(
@@ -565,29 +565,36 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                             ),
                                             onComplete: (DateTime? newDate) {
                                               setState(() {
-                                                selectedDate = newDate;
+                                                selectedDate =
+                                                    newDate; // Cập nhật selectedDate với giá trị mới từ newDate
                                               });
                                             },
                                           ),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                             children: [
                                               ElevatedButton(
                                                 child: const Text('Save'),
                                                 onPressed: () async {
+                                                  // Lưu lại ngày tháng mới cho user
                                                   if (selectedDate != null) {
                                                     setState(() {
-                                                      user!.dob = selectedDate;
+                                                      user!.dob =
+                                                          selectedDate; // Cập nhật user.dob với selectedDate mới
                                                     });
                                                     Navigator.pop(context);
-                                                    await ApiService.editUser(user!);
-                                                    setState(() {});
+                                                    await ApiService.editUser(
+                                                        user!);
+                                                    setState(
+                                                            () {}); // Cập nhật giao diện
                                                   }
                                                 },
                                               ),
                                               ElevatedButton(
                                                 child: const Text('Close'),
-                                                onPressed: () => Navigator.pop(context),
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
                                               ),
                                             ],
                                           ),
