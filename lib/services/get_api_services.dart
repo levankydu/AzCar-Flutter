@@ -8,7 +8,7 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.2.68:8081/api/auth';
+  static const String baseUrl = 'http://192.168.1.173:8081/api/auth';
 
   static Future<List<UserModel>> fetchPosts() async {
     final response = await http.get(Uri.parse('$baseUrl/getUsers'));
