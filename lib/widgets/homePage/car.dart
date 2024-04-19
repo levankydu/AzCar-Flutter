@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:az_car_flutter_app/services/get_api_services.dart';
+import 'package:az_car_flutter_app/widgets/detailsPage/heartButton.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,21 +10,26 @@ import 'package:unicons/unicons.dart';
 import 'dart:ui';
 import '../../data/carModel.dart';
 import '../../page/detais_page.dart';
+
 Future<List<CarModel>> getCarsData() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final String? encodedCarList = prefs.getString('carList');
 
   if (encodedCarList != null) {
     final List<dynamic> decodedCarList = json.decode(encodedCarList);
-    final List<CarModel> carList = decodedCarList.map((carJson) => CarModel.fromJson(carJson)).toList();
+    final List<CarModel> carList =
+        decodedCarList.map((carJson) => CarModel.fromJson(carJson)).toList();
     return carList;
   } else {
     return [];
   }
 }
-Padding buildCar(CarModel car, Size size, ThemeData themeData) {
+
+Padding buildCar(CarModel car, Size size, ThemeData themeData, UserModel? user) {
   return Padding(
-    padding: EdgeInsets.symmetric(horizontal: size.width * 0.03, vertical: size.height * 0.01), // Thêm khoảng cách ngang và dọc
+    padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.03, vertical: size.height * 0.01),
+    // Thêm khoảng cách ngang và dọc
     child: Center(
       child: SizedBox(
         child: Container(
@@ -50,7 +57,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
             child: InkWell(
               onTap: () {
                 Get.to(DetailsPage(
-                   car:  car,
+                  car: car,
                 ));
               },
               child: Column(
@@ -70,7 +77,8 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                           ),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(13), // Border radius cho hình ảnh
+                          borderRadius: BorderRadius.circular(13),
+                          // Border radius cho hình ảnh
                           child: AspectRatio(
                             aspectRatio: 2.0,
                             child: Image(
@@ -86,33 +94,43 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: size.height * 0.01,
-                    ),
-                    child: Text(
-                      car.licensePlates,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: themeData.secondaryHeaderColor,
-                        fontSize: size.width * 0.05,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: size.height * 0.01,
+                            ),
+                            child: Text(
+                              car.licensePlates,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: themeData.secondaryHeaderColor,
+                                fontSize: size.width * 0.05,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${car.carmodel.model}-${car.carmodel.year}',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.03,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                  Text(
-                    '${car.carmodel.model}-${car.carmodel.year}',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      color: themeData.secondaryHeaderColor,
-                      fontSize: size.width * 0.03,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      if(user != null)
+                      HeartButton(car, user),
+                    ],
                   ),
                   Row(
                     children: [
                       Text(
-                        '\$${car.price}',
+                        '\$${car.discount > 0 ? (car.price - (car.price * car.discount / 100)).toStringAsFixed(2) : car.price}',
                         style: GoogleFonts.poppins(
                           color: themeData.secondaryHeaderColor,
                           fontSize: size.width * 0.06,
@@ -135,17 +153,27 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData) {
                         child: SizedBox(
                           child: Container(
                             decoration: const BoxDecoration(
-                              color: Color(0xff3b22a1),
+                              color: Colors.green,
                               borderRadius: BorderRadius.all(
                                 Radius.circular(
                                   10,
                                 ),
                               ),
                             ),
-                            child: const Icon(
-                              UniconsLine.credit_card,
-                              color: Colors.white,
-                            ),
+                            child: car.discount > 0
+                                ? Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 3, right: 3),
+                                    child: Text(
+                                      '-${car.discount}%',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: size.width * 0.04,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(),
                           ),
                         ),
                       ),

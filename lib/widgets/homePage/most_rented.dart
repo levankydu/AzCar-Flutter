@@ -1,10 +1,11 @@
+import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../data/carModel.dart';
 import 'car.dart';
 import 'category.dart';
 
-Widget buildMostRented(Size size, ThemeData themeData, List<CarModel>? carList) {
+Widget buildMostRented(Size size, ThemeData themeData, List<CarModel>? carList, UserModel? user) {
   return SizedBox(
     width: double.infinity, // Đảm bảo mở rộng ra full width của màn hình
     child: Column(
@@ -22,6 +23,7 @@ Widget buildMostRented(Size size, ThemeData themeData, List<CarModel>? carList) 
                 carList![i],
                 size,
                 themeData,
+                user,
               );
             },
           ),

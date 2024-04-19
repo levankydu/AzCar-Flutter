@@ -23,6 +23,12 @@ class CarModel {
   bool carPlus;
   bool extraFee;
   bool availabled;
+  int? deliveryFee;
+  int? cleaningFee;
+  int? smellFee;
+  bool isFavorite;
+  int violationAmount;
+  int finishedOrders;
 
   CarModel({
     required this.seatQty,
@@ -44,6 +50,12 @@ class CarModel {
     required this.carPlus,
     required this.extraFee,
     required this.availabled,
+    required this.deliveryFee,
+    required this.cleaningFee,
+    required this.smellFee,
+    required this.isFavorite,
+    required this.finishedOrders,
+    required this.violationAmount,
   });
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
@@ -69,6 +81,12 @@ class CarModel {
       carPlus: json['carPlus'],
       extraFee: json['extraFee'],
       availabled: json['availabled'],
+      deliveryFee: json['carPlusModel'] != null ? json['carPlusModel']['fee'] : 0,
+      cleaningFee: json['extraFeeModel'] != null ? json['extraFeeModel']['cleanningFee'] : 0,
+      smellFee: json['extraFeeModel'] != null ? json['extraFeeModel']['decorationFee'] : 0,
+      isFavorite: json['favorite'] ?? false,
+      violationAmount: json['activeViolationAmount'] ?? 0,
+      finishedOrders: json['finishedOrders'] ?? 0,
     );
   }
 
