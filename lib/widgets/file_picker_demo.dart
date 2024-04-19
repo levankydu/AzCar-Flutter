@@ -1,14 +1,8 @@
-import 'package:community_material_icon/community_material_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
-
-import '../../page/home_page.dart';
-import 'car_register.dart';
 
 class FilePickerDemo extends StatefulWidget {
   @override
@@ -49,9 +43,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://192.168.1.90:8081/api/auth/upload3'),
-
     );
-    print('paths img count${_paths!.length}');
+    print('paths img count' + _paths!.length.toString());
       var frontImg =
           await http.MultipartFile.fromPath('frontImg', _paths![0].path!);
       var insideImg =
@@ -99,7 +92,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       ))
           ?.files;
     } on PlatformException catch (e) {
-      _logException('Unsupported operation$e');
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     }
@@ -131,7 +124,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         ),
       );
     } on PlatformException catch (e) {
-      _logException('Unsupported operation$e');
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -152,7 +145,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = path == null;
       });
     } on PlatformException catch (e) {
-      _logException('Unsupported operation$e');
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -178,7 +171,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = fileName == null;
       });
     } on PlatformException catch (e) {
-      _logException('Unsupported operation$e');
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -217,14 +210,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    ThemeData themeData = Theme.of(context);
     return MaterialApp(
       scaffoldMessengerKey: _scaffoldMessengerKey,
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         snackBarTheme: SnackBarThemeData(
           backgroundColor: Colors.deepPurple,
         ),
@@ -232,34 +223,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Select Image'),
-          leading: Padding(
-            padding: EdgeInsets.only(
-              left: size.width * 0.05,
-            ),
-            child: SizedBox(
-              height: size.height * 0.1,
-              width: size.width * 0.1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: themeData.colorScheme.background.withOpacity(0.03),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(() => CarRegister());
-                  },
-                  child: Icon(
-                    CommunityMaterialIcons.arrow_left_bold_circle,
-                    color: themeData.secondaryHeaderColor,
-                    size: 40,
-                  ),
-                ),
-              ),
-            ),
-          ),
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 5.0, right: 5.0),

@@ -113,11 +113,10 @@ class _BookingWidgetState extends State<BookingWidget> {
                   return null;
                 },
                 onTap: () async {
-                  DateTime initialDate =
-                      fromDateController.text.isNotEmpty
-                          ? DateFormat('dd-MM-yyyy HH:mm:ss.S').parse(
-                              '${fromDateController.text} 00:00:00.000')
-                          : DateTime.now();
+                  DateTime initialDate = fromDateController.text.isNotEmpty
+                      ? DateFormat('dd-MM-yyyy HH:mm:ss.S')
+                          .parse('${fromDateController.text} 00:00:00.000')
+                      : DateTime.now();
                   DateTime? pickedDate = await showDatePicker(
                     context: context,
                     initialDate: initialDate,
@@ -162,8 +161,8 @@ class _BookingWidgetState extends State<BookingWidget> {
                           : DateTime.now());
                   DateTime firstSelectableDate = DateTime.now();
                   if (fromDateController.text.isNotEmpty) {
-                    firstSelectableDate = DateFormat('dd-MM-yyyy')
-                        .parse(fromDateController.text);
+                    firstSelectableDate =
+                        DateFormat('dd-MM-yyyy').parse(fromDateController.text);
                   }
                   DateTime? pickedDate = await showDatePicker(
                     context: context,
@@ -301,81 +300,85 @@ class _BookingWidgetState extends State<BookingWidget> {
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
-                    setState(() {
-                      isLoading = true; // Hiển thị loader khi nhấn vào nút
-                    });
-                    try {
-                      prefs = await SharedPreferences.getInstance();
-                      final String email = prefs.getString('emailLogin')!;
-                      final String id = prefs.getString('id')!;
-                      Province province =
-                          provinces.firstWhere((i) => i.code == selectedProvince);
-                      District district =
-                          districts.firstWhere((i) => i.code == selectedDistrict);
-                      Ward ward = wards.firstWhere((i) => i.code == selectedWard);
-                      final response = await http.post(
-                        Uri.parse(
-                            '${ApiService.baseUrl}/api/cars/postOrderDetails'),
-                        headers: <String, String>{
-                          'Content-Type': 'application/json; charset=UTF-8',
-                        },
-                        body: jsonEncode(<String, String>{
-                          'fromDate': fromDateController.text,
-                          'toDate': toDateController.text,
-                          'ward': ward.fullName,
-                          'district': district.fullName,
-                          'province': province.fullName,
-                          'carId': widget.car.id.toString(),
-                          'userEmail': email,
-                          'userId': id,
-                        }),
-                      );
-                      if (response.statusCode == 200) {
-                        print(response.statusCode);
-                        print(response.body);
-                        String message =
-                            'Great, your order is signed up successfully!';
-                        await Fluttertoast.showToast(
-                            msg: response.body,
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            timeInSecForIosWeb: 5,
-                            backgroundColor: response.body == message
-                                ? Colors.green
-                                : Colors.amber,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                        if (response.body == message) {
-                          setState(() {
-                            fromDateController.text = '';
-                            toDateController.text = '';
-                            houseNo.text = '';
-                            street.text = '';
-                            selectedProvince = '';
-                            selectedDistrict = '';
-                            selectedWard = '';
-                          });
-                        }
-                      } else {
-                        await Fluttertoast.showToast(
-                          msg: 'Something happened, please try again',
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.TOP,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
-                      }
-                    } finally {
-                      Navigator.pop(context);
+                    if (_formKey.currentState!.validate()) {
                       setState(() {
-                        isLoading =
-                            false; // Ẩn loader khi nhận được phản hồi từ máy chủ
+                        isLoading = true;
                       });
+                      try {
+                        prefs = await SharedPreferences.getInstance();
+                        final String email = prefs.getString('emailLogin')!;
+                        final String id = prefs.getString('id')!;
+                        Province province = provinces
+                            .firstWhere((i) => i.code == selectedProvince);
+                        District district = districts
+                            .firstWhere((i) => i.code == selectedDistrict);
+                        Ward ward =
+                            wards.firstWhere((i) => i.code == selectedWard);
+                        final response = await http.post(
+                          Uri.parse(
+                              '${ApiService.baseUrl}/api/cars/postOrderDetails'),
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                          },
+                          body: jsonEncode(<String, String>{
+                            'fromDate': fromDateController.text,
+                            'toDate': toDateController.text,
+                            'ward': ward.fullName,
+                            'district': district.fullName,
+                            'province': province.fullName,
+                            'carId': widget.car.id.toString(),
+                            'userEmail': email,
+                            'userId': id,
+                          }),
+                        );
+                        if (response.statusCode == 200) {
+                          print(response.statusCode);
+                          print(response.body);
+                          String message =
+                              'Great, your order is signed up successfully!';
+                          await Fluttertoast.showToast(
+                              msg: response.body,
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.TOP,
+                              timeInSecForIosWeb: 5,
+                              backgroundColor: response.body == message
+                                  ? Colors.green
+                                  : Colors.amber,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                          if (response.body == message) {
+                            setState(() {
+                              fromDateController.text = '';
+                              toDateController.text = '';
+                              houseNo.text = '';
+                              street.text = '';
+                              selectedProvince = '';
+                              selectedDistrict = '';
+                              selectedWard = '';
+                            });
+                          }
+                          Navigator.pop(context);
+                        } else {
+                          await Fluttertoast.showToast(
+                            msg: 'Something happened, please try again',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.TOP,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                        }
+                      } finally {
+                        setState(() {
+                          isLoading =
+                              false; // Ẩn loader khi nhận được phản hồi từ máy chủ
+                        });
+                      }
                     }
                   },
-                  child:
-                      isLoading ? CircularProgressIndicator() : Text('Book Now'),
+                  child: isLoading
+                      ? CircularProgressIndicator()
+                      : Text('Book Now'),
                 ),
               ),
             ],

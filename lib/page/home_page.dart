@@ -36,8 +36,15 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<CarModel>?> getCarsData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkValue = prefs.containsKey('emailLogin');
+    final List<CarModel>? carList;
+    if (checkValue) {
+      carList =
+          await ApiService.getCarsExceptUserCar(prefs.getString('emailLogin')!);
+    } else {
+      carList = await ApiService.getAllCars();
+    }
 
-    final carList = await ApiService.getCarsExceptUserCar(prefs.getString('emailLogin')!);
     if (carList!.isNotEmpty) {
       final List<Map<String, dynamic>> jsonList =
           carList.map((car) => car.toJson()).toList();
@@ -136,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: ClipOval(
                       child: Image(
-                        image: NetworkImage(user != null
+                        image: NetworkImage(user != null && user!.image.isNotEmpty
                             ? '${ApiService.baseUrl}/user/profile/flutter/avatar/${user?.image}'
                             : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
                         fit: BoxFit.cover, // Adjust the fit as needed
@@ -231,12 +238,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Text(
                       'Need To Register A Car?',
-                      style: TextStyle(fontSize: 18.0, color: Colors.white), // Kích thước chữ
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white), // Kích thước chữ
                     ),
                   ),
                 ),
               ),
-              buildMostRented(size, themeData, _carsFuture),
+              buildMostRented(size, themeData, _carsFuture, user),
             ],
           ),
         ),

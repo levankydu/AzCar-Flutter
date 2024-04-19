@@ -26,27 +26,29 @@ class CarDetailsWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Discount :${car.discount}%',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: themeData.primaryColor,
-                  fontSize: size.width * 0.04,
-                  fontWeight: FontWeight.bold,
+              car.discount > 0 ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.green, // Màu nền xanh lá cây
+                  borderRadius: BorderRadius.circular(10), // Bo tròn góc
                 ),
-              ),
+                padding: EdgeInsets.all(8), // Khoảng cách giữa nội dung và biên của Container
+                child: Text(
+                  'Sales: ${car.discount}%',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: size.width * 0.04,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ) : SizedBox(),
               const Spacer(),
-              Icon(
-                Icons.star,
-                color: Colors.yellow[800],
-                size: size.width * 0.06,
-              ),
               Text(
                 car.licensePlates,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: Colors.yellow[800],
-                  fontSize: size.width * 0.04,
+                  fontSize: size.width * 0.07,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -56,7 +58,7 @@ class CarDetailsWidget extends StatelessWidget {
         Row(
           children: [
             Text(
-              '${car.carmodel.model}-${car.carmodel.year}',
+              '${car.carmodel.model} - ${car.carmodel.year}',
               textAlign: TextAlign.left,
               style: GoogleFonts.poppins(
                 color: themeData.primaryColor,
@@ -66,7 +68,7 @@ class CarDetailsWidget extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '${(car.price - (car.price * car.discount / 100)).toStringAsFixed(2)}\$',
+              '\$${(car.price - (car.price * car.discount / 100)).toStringAsFixed(2)}',
               style: GoogleFonts.poppins(
                 color: themeData.primaryColor,
                 fontSize: size.width * 0.04,
@@ -85,44 +87,77 @@ class CarDetailsWidget extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsets.only(top: size.height * 0.02),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
             children: [
-              buildStat(
-                UniconsLine.dashboard,
-                '${car.fuelType} ',
-                'Power',
-                size,
-                themeData,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildStat(UniconsLine.dashboard, '${car.fuelType == 'Gasoline' ? 'Petrol' : car.fuelType} ',
+                        'Fuel', size, themeData, null),
+                    buildStat(UniconsLine.users_alt, 'Seats',
+                        '( ${car.seatQty} )', size, themeData, null),
+                    buildStat(
+                        UniconsLine.car,
+                        'Engine',
+                        ' ${car.engineInformationTranmission ? 'Auto' : 'Manual'} ',
+                        size,
+                        themeData,
+                        null),
+                  ],
+                ),
               ),
-              buildStat(
-                UniconsLine.users_alt,
-                'People',
-                '( ${car.seatQty} )',
-                size,
-                themeData,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildStat(
+                        UniconsLine.rocket,
+                        car.deliveryFee! > 0 ? '\$${car.deliveryFee}' : 'Free',
+                        'Deli Fee',
+                        size,
+                        themeData,
+                        null),
+                    buildStat(
+                        UniconsLine.car_wash,
+                        car.cleaningFee! > 0 ? '\$${car.cleaningFee}' : 'Free',
+                        'Clean Fee',
+                        size,
+                        themeData,
+                        null),
+                    buildStat(
+                        UniconsLine.sanitizer_alt,
+                        car.smellFee! > 0 ? '\$${car.smellFee}' : 'Free',
+                        'Smell Fee',
+                        size,
+                        themeData,
+                        null),
+                  ],
+                ),
               ),
-              buildStat(
-                UniconsLine.car,
-                'Engine',
-                ' ${car.engineInformationTranmission ? 'Auto' : 'Manual'} ',
-                size,
-                themeData,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildStat(UniconsLine.receipt, '${car.finishedOrders}',
+                      'Trips', size * 1.5, themeData, 'green'),
+                  buildStat(
+                    UniconsLine.star,
+                    '4.76',
+                    'Quality',
+                    size * 1.5,
+                    themeData,
+                    'yellow',
+                  ),
+                ],
               ),
             ],
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: size.height * 0.03,
-          ),
-          child: Text(
-            'Car Location',
-            style: GoogleFonts.poppins(
-              color: themeData.primaryColor,
-              fontSize: size.width * 0.055,
-              fontWeight: FontWeight.bold,
-            ),
+            vertical: size.height * 0.01,
           ),
         ),
         Center(
@@ -149,27 +184,30 @@ class CarDetailsWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
-                          UniconsLine.map_marker,
-                          color: const Color(0xff3b22a1),
+                          UniconsLine.shield_check,
+                          color: Colors.green,
                           size: size.height * 0.05,
                         ),
                         Text(
-                          car.address
-                              .split(', ')
-                              .sublist(car.address.split(', ').length - 2)
-                              .join(', '),
+                          '\$200 Insurance bundle included',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor,
+                            fontSize: size.width * 0.045,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '* The trip has been insured, feel free to enjoy',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: themeData.primaryColor.withOpacity(0.6),
                             fontSize: size.width * 0.03,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          car.address
-                              .split(', ')
-                              .sublist(0, car.address.split(', ').length - 2)
-                              .join(', '),
+                          '* No worries about incidents',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor.withOpacity(0.6),
@@ -185,17 +223,93 @@ class CarDetailsWidget extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: size.height * 0.01,
+          ),
+        ),
+        Center(
+          child: SizedBox(
+            height: size.height * 0.15,
+            width: size.width * 0.9,
+            child: Container(
+              decoration: BoxDecoration(
+                color: themeData.cardColor,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.05,
+                        vertical: size.height * 0.015,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            UniconsLine.map_marker,
+                            color: Colors.redAccent,
+                            size: size.height * 0.05,
+                          ),
+                          Text(
+                            car.address
+                                .split(', ')
+                                .sublist(car.address.split(', ').length - 2)
+                                .join(', '),
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.primaryColor,
+                              fontSize: size.width * 0.03,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            car.address
+                                .split(', ')
+                                .sublist(0, car.address.split(', ').length - 2)
+                                .join(', '),
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.primaryColor.withOpacity(0.6),
+                              fontSize: size.width * 0.03,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+
       ],
     );
   }
 
   Padding buildStat(
-      IconData icon,
-      String title,
-      String desc,
-      Size size,
-      ThemeData themeData,
-      ) {
+    IconData icon,
+    String title,
+    String desc,
+    Size size,
+    ThemeData themeData,
+    String? colorName,
+  ) {
+    Map<String, Color> colorMap = {
+      'red': Colors.red,
+      'blue': Colors.blue,
+      'green': Colors.green,
+      'yellow': Colors.yellow,
+    };
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: size.width * 0.015,
@@ -220,7 +334,7 @@ class CarDetailsWidget extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: const Color(0xff3b22a1),
+                  color: colorMap[colorName] ?? const Color(0xff3b22a1),
                   size: size.width * 0.08,
                 ),
                 Padding(

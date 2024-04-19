@@ -1,5 +1,7 @@
 import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:az_car_flutter_app/page/home_page.dart';
+import 'package:az_car_flutter_app/page/DepositPage.dart';
+
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
@@ -12,6 +14,7 @@ import 'package:unicons/unicons.dart';
 import 'package:intl/intl.dart';
 import '../constant_user_profile_screen.dart';
 import '../services/get_api_services.dart';
+import 'WithdrawPage.dart';
 import 'login_register_page.dart';
 import 'package:date_format_field/date_format_field.dart';
 
@@ -95,6 +98,57 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               child: Text('Sign Out'),
             ),
           ],
+        );
+      },
+    );
+  }
+ void _showTransactionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose Transaction Type'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog before navigating
+                  if (user?.id != null ) {
+                    Get.to(() => DepositPage(id: user?.id, balance: user?.balance));
+                  } else {
+                    Get.snackbar('Error', 'User information is incomplete. Cannot proceed to deposit.');
+                  }
+                },
+
+                child: Text(
+                  'Deposit',
+                  style: TextStyle(
+                    color: Colors.red, // Text color
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog before navigating
+                  // Placeholder for Withdraw action
+                  if (user?.id != null ) {
+                    // Assuming you have a WithdrawPage
+                    Get.to(() => WithdrawPage(id: user?.id, balance: user?.balance));
+                  } else {
+                    Get.snackbar('Error', 'User information is incomplete. Cannot proceed to withdraw.');
+                  }
+                },
+
+                child: Text(
+                  'Withdraw',
+                  style: TextStyle(
+                    color: Colors.green, // Text color
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -250,17 +304,31 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           top: size.height * 0.02,
                           left: size.width * 0.06,
                         ),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            'Welcome back, ',
-                            textAlign: TextAlign.left,
-                            style: GoogleFonts.poppins(
-                              color: themeData.secondaryHeaderColor,
-                              fontSize: size.width * 0.06,
-                              fontWeight: FontWeight.bold,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Welcome back, ',
+                              style: GoogleFonts.poppins(
+                                color: themeData.secondaryHeaderColor,
+                                fontSize: size.width * 0.06,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
+                            ElevatedButton(
+                              onPressed: _showTransactionDialog, // Reference to the method that shows the dialog
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: themeData.secondaryHeaderColor, // Button color
+                              ),
+                              child: Text(
+                                'Transactions',
+                                style: TextStyle(
+                                  color: Colors.white, // Text color
+                                ),
+                              ),
+                            )
+
+                          ],
                         ),
                       ),
                       Padding(
@@ -811,4 +879,5 @@ class ProfileDetailColumn extends StatelessWidget {
       ],
     );
   }
+
 }
