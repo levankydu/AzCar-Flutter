@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:az_car_flutter_app/data/carModel.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
+import 'package:az_car_flutter_app/widgets/homePage/car_register.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,12 +35,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<CarModel>?> getCarsData() async {
-    final carList = await ApiService.getAllCars();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkValue = prefs.containsKey('emailLogin');
+    final List<CarModel>? carList;
+    if (checkValue) {
+      carList =
+          await ApiService.getCarsExceptUserCar(prefs.getString('emailLogin')!);
+    } else {
+      carList = await ApiService.getAllCars();
+    }
+
     if (carList!.isNotEmpty) {
       final List<Map<String, dynamic>> jsonList =
           carList.map((car) => car.toJson()).toList();
       final String encodedCarList = json.encode(jsonList);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
       await prefs.setString('carList', encodedCarList);
       setState(() {
         _carsFuture = carList;
@@ -55,6 +65,8 @@ class _HomePageState extends State<HomePage> {
       final String action = prefs.getString('emailLogin')!;
       var model = await ApiService.getUserByEmail(action);
       if (model != null) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('id', model.id.toString());
         setState(() {
           user = model;
         });
@@ -131,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: ClipOval(
                       child: Image(
-                        image: NetworkImage(user != null
+                        image: NetworkImage(user?.image !=''
                             ? '${ApiService.baseUrl}/user/profile/flutter/avatar/${user?.image}'
                             : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
                         fit: BoxFit.cover, // Adjust the fit as needed
@@ -151,62 +163,91 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: buildBottomNavBar(1, size, themeData),
       backgroundColor: themeData.colorScheme.background,
       body: SafeArea(
-        child: ListView(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(
-                top: size.height * 0.02,
-                left: size.width * 0.05,
-                right: size.width * 0.05,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(15),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  top: size.height * 0.02,
+                  left: size.width * 0.05,
+                  right: size.width * 0.05,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(15),
+                    ),
+                    color: themeData.cardColor, //section bg color
                   ),
-                  color: themeData.cardColor, //section bg color
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.02,
-                      ),
-                      child: Align(
-                        child: Text(
-                          'With Corporate Difference',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.06,
-                            fontWeight: FontWeight.bold,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: size.height * 0.02,
+                        ),
+                        child: Align(
+                          child: Text(
+                            'With Corporate Difference',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.06,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.01,
-                        bottom: size.height * 0.05,
-                      ),
-                      child: Align(
-                        child: Text(
-                          'Enjoy the fun driving in Enterprise',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.035,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: size.height * 0.01,
+                          bottom: size.height * 0.05,
+                        ),
+                        child: Align(
+                          child: Text(
+                            'Enjoy the fun driving in Enterprise',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.035,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            buildTopBrands(size, themeData),
-            buildMostRented(size, themeData, _carsFuture),
-          ],
+              buildTopBrands(size, themeData),
+              Padding(
+                padding: const EdgeInsets.all(50.0),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(bottom: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CarRegister(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      backgroundColor: themeData.secondaryHeaderColor,
+                    ),
+                    child: Text(
+                      'Need To Register A Car?',
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white), // Kích thước chữ
+                    ),
+                  ),
+                ),
+              ),
+              buildMostRented(size, themeData, _carsFuture, user),
+            ],
+          ),
         ),
       ),
     );

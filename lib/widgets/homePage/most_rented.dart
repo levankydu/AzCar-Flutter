@@ -1,37 +1,36 @@
+import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../data/carModel.dart';
 import 'car.dart';
 import 'category.dart';
 
-Widget buildMostRented(Size size, ThemeData themeData, List<CarModel>? carList) {
-  return Column(
-    children: [
-      buildCategory('Most Rented', size, themeData),
-      Padding(
-        padding: EdgeInsets.only(
-          top: size.height * 0.015,
-          left: size.width * 0.03,
-          right: size.width * 0.03,
-        ),
-        child: SizedBox(
-          height: size.width * 0.55,
-          width: carList!.length * size.width * 0.5 * 1.03,
+Widget buildMostRented(Size size, ThemeData themeData, List<CarModel>? carList, UserModel? user) {
+  return SizedBox(
+    width: double.infinity, // Đảm bảo mở rộng ra full width của màn hình
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start, // Đảm bảo các widgets con sẽ căn trái
+      children: [
+        buildCategory('Most Rented', size, themeData),
+        SizedBox(
           child: ListView.builder(
             primary: false,
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: carList.length,
+            shrinkWrap: true, // Co lại theo chiều dọc
+            scrollDirection: Axis.vertical, // Cuộn theo chiều dọc
+            itemCount: carList?.length ?? 0,
             itemBuilder: (context, i) {
               return buildCar(
-                carList[i],
+                carList![i],
                 size,
                 themeData,
+                user,
               );
             },
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
+
+

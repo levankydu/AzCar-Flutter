@@ -1,10 +1,13 @@
+import 'package:az_car_flutter_app/page/forgot_password.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
-import 'dart:ui';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import '../constant_login_register_page.dart';
 import '../services/get_api_services.dart';
 import 'home_page.dart';
@@ -70,6 +73,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
         emailSignUpController.clear();
         passwordSignUpController.clear();
         userNameSignUpController.clear();
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Register successfully.'),
@@ -94,6 +98,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
     return Scaffold(
       backgroundColor: Palette.backgroundColor,
       body: Stack(
@@ -270,7 +275,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(() => ForgotPasswordScreen());
+                },
                 child: Text('Forgot Password?',
                     style: TextStyle(fontSize: 12, color: Palette.textColor1)),
               )
@@ -446,4 +453,5 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
       ),
     );
   }
+  
 }

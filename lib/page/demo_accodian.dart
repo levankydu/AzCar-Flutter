@@ -41,12 +41,12 @@ class _AccordionPageState extends State<AccordionPage> {
   }
 
   Future<List<CarModel>?> getCarsData() async {
-    final carList = await ApiService.getAllCars();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final carList = await ApiService.getAllCarsByUser(prefs.getString('emailLogin')!);
     if (carList!.isNotEmpty) {
       final List<Map<String, dynamic>> jsonList =
           carList.map((car) => car.toJson()).toList();
       final String encodedCarList = json.encode(jsonList);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('carList', encodedCarList);
       setState(() {
         _carsFuture = carList;
@@ -75,37 +75,37 @@ class _AccordionPageState extends State<AccordionPage> {
         sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
         sectionClosingHapticFeedback: SectionHapticFeedback.light,
         children: [
-          AccordionSection(
-            isOpen: false,
-            contentVerticalPadding: 20,
-            leftIcon:
-                const Icon(Icons.text_fields_rounded, color: Colors.white),
-            header: const Text('Simple Text', style: AccordionPage.headerStyle),
-            content: const Text(AccordionPage.loremIpsum,
-                style: AccordionPage.contentStyle),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.input, color: Colors.white),
-            header: const Text('Text Field & Button',
-                style: AccordionPage.headerStyle),
-            contentHorizontalPadding: 40,
-            contentVerticalPadding: 20,
-            content: const MyInputForm(),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.child_care_rounded, color: Colors.white),
-            header: const Text('Nested Accordion',
-                style: AccordionPage.headerStyle),
-            content: const MyNestedAccordion(),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.shopping_cart, color: Colors.white),
-            header: const Text('DataTable', style: AccordionPage.headerStyle),
-            content: const MyDataTable(),
-          ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   contentVerticalPadding: 20,
+          //   leftIcon:
+          //       const Icon(Icons.text_fields_rounded, color: Colors.white),
+          //   header: const Text('Simple Text', style: AccordionPage.headerStyle),
+          //   content: const Text(AccordionPage.loremIpsum,
+          //       style: AccordionPage.contentStyle),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.input, color: Colors.white),
+          //   header: const Text('Text Field & Button',
+          //       style: AccordionPage.headerStyle),
+          //   contentHorizontalPadding: 40,
+          //   contentVerticalPadding: 20,
+          //   content: const MyInputForm(),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.child_care_rounded, color: Colors.white),
+          //   header: const Text('Nested Accordion',
+          //       style: AccordionPage.headerStyle),
+          //   content: const MyNestedAccordion(),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.shopping_cart, color: Colors.white),
+          //   header: const Text('DataTable', style: AccordionPage.headerStyle),
+          //   content: const MyDataTable(),
+          // ),
 
           AccordionSection(
             isOpen: true,
@@ -121,15 +121,6 @@ class _AccordionPageState extends State<AccordionPage> {
                   padding: EdgeInsets.only(
                     top: size.height * 0.001,
                     left: size.width * 0.05,
-                  ),
-                  child: Text(
-                    'My Cars',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      color: themeData.secondaryHeaderColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.055,
-                    ),
                   ),
                 ),
                 Padding(
@@ -230,7 +221,7 @@ class _AccordionPageState extends State<AccordionPage> {
                                         Row(
                                           children: [
                                             Text(
-                                              '${_carsFuture![i].price}\$',
+                                              '\$${_carsFuture![i].discount > 0 ? (_carsFuture![i].price - (_carsFuture![i].discount * _carsFuture![i].price / 100)).toStringAsFixed(2) : _carsFuture![i].price}',
                                               style: GoogleFonts.poppins(
                                                 color: themeData.secondaryHeaderColor,
                                                 fontSize: size.width * 0.06,
@@ -251,8 +242,6 @@ class _AccordionPageState extends State<AccordionPage> {
                                                 right: size.width * 0.025,
                                               ),
                                               child: SizedBox(
-                                                height: size.width * 0.1,
-                                                width: size.width * 0.1,
                                                 child: Container(
                                                   decoration: const BoxDecoration(
                                                     color: Color(0xff3b22a1),
@@ -262,10 +251,20 @@ class _AccordionPageState extends State<AccordionPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  child: const Icon(
-                                                    UniconsLine.credit_card,
-                                                    color: Colors.white,
-                                                  ),
+                                                  child: _carsFuture![i].discount > 0
+                                                      ? Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        left: 3, right: 3),
+                                                    child: Text(
+                                                      '${_carsFuture![i].discount}%',
+                                                      style: GoogleFonts.poppins(
+                                                        color: Colors.white,
+                                                        fontSize: size.width * 0.04,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : SizedBox(),
                                                 ),
                                               ),
                                             ),
@@ -286,170 +285,170 @@ class _AccordionPageState extends State<AccordionPage> {
               ],
             ),
           ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.circle_outlined, color: Colors.black54),
-            rightIcon: const Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.black54,
-              size: 20,
-            ),
-            headerBackgroundColor: Colors.transparent,
-            headerBackgroundColorOpened: Colors.amber,
-            headerBorderColor: Colors.black54,
-            headerBorderColorOpened: Colors.black54,
-            headerBorderWidth: 1,
-            contentBackgroundColor: Colors.amber,
-            contentBorderColor: Colors.black54,
-            contentBorderWidth: 1,
-            contentVerticalPadding: 30,
-            header: const Text('Custom: Header with Border',
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold)),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.label_important_outline_rounded,
-                  size: 50,
-                ).paddingOnly(right: 20),
-                const Flexible(
-                  child: Text(
-                    AccordionPage.slogan,
-                    maxLines: 4,
-                    style: TextStyle(color: Colors.black45, fontSize: 17),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.circle, color: Colors.white),
-            headerBackgroundColor: Colors.deepOrange,
-            headerBackgroundColorOpened: Colors.brown,
-            headerBorderWidth: 1,
-            contentBackgroundColor: Colors.brown,
-            contentBorderWidth: 0,
-            contentVerticalPadding: 30,
-            header: const Text('Custom: Other Colors',
-                style: AccordionPage.headerStyle),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.label_important_outline_rounded,
-                  size: 50,
-                  color: Colors.white54,
-                ).paddingOnly(right: 20),
-                const Flexible(
-                  child: Text(
-                    AccordionPage.slogan,
-                    maxLines: 4,
-                    style: TextStyle(color: Colors.white54, fontSize: 17),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.circle, color: Colors.white),
-            headerBackgroundColor: Colors.green[900],
-            headerBackgroundColorOpened: Colors.lightBlue,
-            headerBorderColorOpened: Colors.yellow,
-            headerBorderWidth: 10,
-            contentBackgroundColor: Colors.lightBlue,
-            contentBorderColor: Colors.yellow,
-            contentBorderWidth: 10,
-            contentVerticalPadding: 30,
-            header: const Text('Custom: Heavy Borders',
-                style: AccordionPage.headerStyle),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.label_important_outline_rounded,
-                  size: 50,
-                  color: Colors.white54,
-                ).paddingOnly(right: 20),
-                const Flexible(
-                  child: Text(
-                    AccordionPage.slogan,
-                    maxLines: 4,
-                    style: TextStyle(color: Colors.white54, fontSize: 17),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.circle, color: Colors.white),
-            headerBorderRadius: 30,
-            headerBackgroundColor: Colors.purple,
-            headerBackgroundColorOpened: Colors.purple,
-            headerBorderColorOpened: Colors.white,
-            headerBorderWidth: 2,
-            contentBackgroundColor: Colors.purple,
-            contentBorderColor: Colors.white,
-            contentBorderWidth: 2,
-            contentBorderRadius: 100,
-            contentVerticalPadding: 30,
-            header: const Text('Custom: Very Round',
-                style: AccordionPage.headerStyle),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.label_important_outline_rounded,
-                  size: 50,
-                  color: Colors.white54,
-                ).paddingOnly(right: 20),
-                const Flexible(
-                  child: Text(
-                    AccordionPage.slogan,
-                    maxLines: 4,
-                    style: TextStyle(color: Colors.white54, fontSize: 17),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AccordionSection(
-            isOpen: false,
-            leftIcon: const Icon(Icons.circle, color: Colors.white),
-            headerBorderRadius: 0,
-            headerBackgroundColor: Colors.black87,
-            headerBackgroundColorOpened: Colors.black87,
-            headerBorderColorOpened: const Color(0xffaaaaaa),
-            headerBorderWidth: 1,
-            contentBackgroundColor: Colors.black54,
-            contentBorderColor: const Color(0xffaaaaaa),
-            contentBorderWidth: 1,
-            contentBorderRadius: 0,
-            contentVerticalPadding: 30,
-            header: const Text('Android', style: AccordionPage.headerStyle),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.label_important_outline_rounded,
-                  size: 50,
-                  color: Colors.white54,
-                ).paddingOnly(right: 20),
-                const Flexible(
-                  child: Text(
-                    AccordionPage.slogan,
-                    maxLines: 4,
-                    style: TextStyle(color: Colors.white54, fontSize: 17),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.circle_outlined, color: Colors.black54),
+          //   rightIcon: const Icon(
+          //     Icons.keyboard_arrow_down,
+          //     color: Colors.black54,
+          //     size: 20,
+          //   ),
+          //   headerBackgroundColor: Colors.transparent,
+          //   headerBackgroundColorOpened: Colors.amber,
+          //   headerBorderColor: Colors.black54,
+          //   headerBorderColorOpened: Colors.black54,
+          //   headerBorderWidth: 1,
+          //   contentBackgroundColor: Colors.amber,
+          //   contentBorderColor: Colors.black54,
+          //   contentBorderWidth: 1,
+          //   contentVerticalPadding: 30,
+          //   header: const Text('Custom: Header with Border',
+          //       style: TextStyle(
+          //           color: Colors.black54,
+          //           fontSize: 18,
+          //           fontWeight: FontWeight.bold)),
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(
+          //         Icons.label_important_outline_rounded,
+          //         size: 50,
+          //       ).paddingOnly(right: 20),
+          //       const Flexible(
+          //         child: Text(
+          //           AccordionPage.slogan,
+          //           maxLines: 4,
+          //           style: TextStyle(color: Colors.black45, fontSize: 17),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.circle, color: Colors.white),
+          //   headerBackgroundColor: Colors.deepOrange,
+          //   headerBackgroundColorOpened: Colors.brown,
+          //   headerBorderWidth: 1,
+          //   contentBackgroundColor: Colors.brown,
+          //   contentBorderWidth: 0,
+          //   contentVerticalPadding: 30,
+          //   header: const Text('Custom: Other Colors',
+          //       style: AccordionPage.headerStyle),
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(
+          //         Icons.label_important_outline_rounded,
+          //         size: 50,
+          //         color: Colors.white54,
+          //       ).paddingOnly(right: 20),
+          //       const Flexible(
+          //         child: Text(
+          //           AccordionPage.slogan,
+          //           maxLines: 4,
+          //           style: TextStyle(color: Colors.white54, fontSize: 17),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.circle, color: Colors.white),
+          //   headerBackgroundColor: Colors.green[900],
+          //   headerBackgroundColorOpened: Colors.lightBlue,
+          //   headerBorderColorOpened: Colors.yellow,
+          //   headerBorderWidth: 10,
+          //   contentBackgroundColor: Colors.lightBlue,
+          //   contentBorderColor: Colors.yellow,
+          //   contentBorderWidth: 10,
+          //   contentVerticalPadding: 30,
+          //   header: const Text('Custom: Heavy Borders',
+          //       style: AccordionPage.headerStyle),
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(
+          //         Icons.label_important_outline_rounded,
+          //         size: 50,
+          //         color: Colors.white54,
+          //       ).paddingOnly(right: 20),
+          //       const Flexible(
+          //         child: Text(
+          //           AccordionPage.slogan,
+          //           maxLines: 4,
+          //           style: TextStyle(color: Colors.white54, fontSize: 17),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.circle, color: Colors.white),
+          //   headerBorderRadius: 30,
+          //   headerBackgroundColor: Colors.purple,
+          //   headerBackgroundColorOpened: Colors.purple,
+          //   headerBorderColorOpened: Colors.white,
+          //   headerBorderWidth: 2,
+          //   contentBackgroundColor: Colors.purple,
+          //   contentBorderColor: Colors.white,
+          //   contentBorderWidth: 2,
+          //   contentBorderRadius: 100,
+          //   contentVerticalPadding: 30,
+          //   header: const Text('Custom: Very Round',
+          //       style: AccordionPage.headerStyle),
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(
+          //         Icons.label_important_outline_rounded,
+          //         size: 50,
+          //         color: Colors.white54,
+          //       ).paddingOnly(right: 20),
+          //       const Flexible(
+          //         child: Text(
+          //           AccordionPage.slogan,
+          //           maxLines: 4,
+          //           style: TextStyle(color: Colors.white54, fontSize: 17),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // AccordionSection(
+          //   isOpen: false,
+          //   leftIcon: const Icon(Icons.circle, color: Colors.white),
+          //   headerBorderRadius: 0,
+          //   headerBackgroundColor: Colors.black87,
+          //   headerBackgroundColorOpened: Colors.black87,
+          //   headerBorderColorOpened: const Color(0xffaaaaaa),
+          //   headerBorderWidth: 1,
+          //   contentBackgroundColor: Colors.black54,
+          //   contentBorderColor: const Color(0xffaaaaaa),
+          //   contentBorderWidth: 1,
+          //   contentBorderRadius: 0,
+          //   contentVerticalPadding: 30,
+          //   header: const Text('Android', style: AccordionPage.headerStyle),
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(
+          //         Icons.label_important_outline_rounded,
+          //         size: 50,
+          //         color: Colors.white54,
+          //       ).paddingOnly(right: 20),
+          //       const Flexible(
+          //         child: Text(
+          //           AccordionPage.slogan,
+          //           maxLines: 4,
+          //           style: TextStyle(color: Colors.white54, fontSize: 17),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
