@@ -180,6 +180,31 @@ class _DepositPageState extends State<DepositPage> {
       },
     );
   }
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Help Instructions"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text("1. Click 'Show Bank Info' to select your bank."),
+                Text("2. Input the amount you want to deposit."),
+                Text("3. Click 'I accept conditions and policy' and then 'Confirm Deposit'."),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   String _generateRandomString() {
     const String _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -193,6 +218,7 @@ class _DepositPageState extends State<DepositPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Deposit'),
+
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -200,7 +226,7 @@ class _DepositPageState extends State<DepositPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Text('Balance: ${widget.balance  ?? 'Not available'} USD',
+            Text('Balance: ${widget.balance  ?? '0'} USD',
 
         style: TextStyle(
           color: Color(0xFF7e3ccf), // Hex color code for Flutter
@@ -338,12 +364,20 @@ class _DepositPageState extends State<DepositPage> {
                           ),
                         ),
                       ),
+                      TextButton(
+                        onPressed: _showHelpDialog,
+                        child: Text('Help', style: TextStyle(
+                            decoration: TextDecoration.underline,
+
+                            color: Colors.red)),
+                      ),
+
                     ],
                   ),
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: (_isAccepted) ? _handleDeposit : null,
+                  onPressed: (_isAccepted && selectedBank != null) ? _handleDeposit : null,
                   child: Text('Confirm Deposit'),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.green,

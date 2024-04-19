@@ -106,7 +106,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog before navigating
-                  if (user?.id != null && user?.balance != null) {
+                  if (user?.id != null ) {
                     Get.to(() => DepositPage(id: user?.id, balance: user?.balance));
                   } else {
                     Get.snackbar('Error', 'User information is incomplete. Cannot proceed to deposit.');
@@ -124,7 +124,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog before navigating
                   // Placeholder for Withdraw action
-                  if (user?.id != null && user?.balance != null) {
+                  if (user?.id != null ) {
                     // Assuming you have a WithdrawPage
                     Get.to(() => WithdrawPage(id: user?.id, balance: user?.balance));
                   } else {

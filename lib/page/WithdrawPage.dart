@@ -16,10 +16,9 @@ import 'SuccessPage.dart';
 
 class WithdrawPage extends StatefulWidget {
   final int? id;
-  final double? balance;  // Adding a balance parameter
+  final double? balance; // Adding a balance parameter
 
   WithdrawPage({Key? key, this.id, this.balance}) : super(key: key);
-
 
   @override
   _WithdrawPageState createState() => _WithdrawPageState();
@@ -27,13 +26,17 @@ class WithdrawPage extends StatefulWidget {
 
 class _WithdrawPageState extends State<WithdrawPage> {
   final TextEditingController withdrawController = TextEditingController();
+  final TextEditingController bankNameController = TextEditingController();
+  final TextEditingController bankNumberController = TextEditingController();
+  final TextEditingController beneficiaryNameController = TextEditingController();
+  final TextEditingController addressBankController = TextEditingController();
+// Assuming userId is already available in some form, if not, it needs to be managed accordingly.
+
   late final String randomReferenceNumber;
   bool _isAccepted = false;
   String _message = '';
   CardBankDTO? cardBank;
-  bool _isLoading = true;  // Add isLoading state
-
-
+  bool _isLoading = true; // Add isLoading state
 
   @override
   void initState() {
@@ -54,10 +57,11 @@ class _WithdrawPageState extends State<WithdrawPage> {
 
   void fetchCardBankDetails() async {
     if (widget.id != null) {
-      cardBank = await CardBankService.getCardBankByUserId(widget.id.toString());
+      cardBank =
+          await CardBankService.getCardBankByUserId(widget.id.toString());
       if (!mounted) return;
       setState(() {
-        _isLoading = false;  // Update loading state
+        _isLoading = false; // Update loading state
       });
     } else {
       // Handle null ID by showing a snackbar and optionally navigating back
@@ -65,6 +69,7 @@ class _WithdrawPageState extends State<WithdrawPage> {
       Get.back();
     }
   }
+
   void _showTermsDialog() {
     showDialog(
       context: context,
@@ -100,7 +105,8 @@ class _WithdrawPageState extends State<WithdrawPage> {
   }
 
   String _generateRandomString() {
-    const String _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const String _chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     Random _rnd = Random();
     return String.fromCharCodes(Iterable.generate(
         6, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
@@ -116,20 +122,20 @@ class _WithdrawPageState extends State<WithdrawPage> {
       child: Text('\$$withdraw'),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('WithDraw'),
       ),
-      body:
-      SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Balance: ${widget.balance?.toStringAsFixed(2) ?? "Not available"} USD',
+              'Balance: ${widget.balance?.toStringAsFixed(2) ?? "0"} USD',
               style: TextStyle(
                 color: Color(0xFF7e3ccf),
                 fontWeight: FontWeight.bold,
@@ -137,10 +143,28 @@ class _WithdrawPageState extends State<WithdrawPage> {
               ),
             ),
             // Display card bank details if available
-
+            if (cardBank != null) ...[
               Text('Bank Name: ${cardBank!.bankName}'),
               Text('Beneficiary Name: ${cardBank!.beneficiaryName}'),
               Text('Address: ${cardBank!.addressbank}'),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  children: [
+                    Text('No card bank information available.',
+                        style: TextStyle(fontSize: 16, color: Colors.red)),
+                    ElevatedButton(
+                      onPressed: _showRegisterCardBankDialog,
+                      child: Text('Create New Card Bank'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             Text(
               'Reference Number: $randomReferenceNumber',
@@ -151,15 +175,17 @@ class _WithdrawPageState extends State<WithdrawPage> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.copy, color: Color(0xFF3498DB)), // Example of a custom blue color
+              icon: Icon(Icons.copy, color: Color(0xFF3498DB)),
+              // Example of a custom blue color
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: randomReferenceNumber)).then(
-                        (value) => Get.snackbar('Copied', 'Reference number copied to clipboard'),
-                    onError: (error) => Get.snackbar('Error', 'Failed to copy to clipboard')
-                );
+                Clipboard.setData(ClipboardData(text: randomReferenceNumber))
+                    .then(
+                        (value) => Get.snackbar(
+                            'Copied', 'Reference number copied to clipboard'),
+                        onError: (error) => Get.snackbar(
+                            'Error', 'Failed to copy to clipboard'));
               },
-            )
-            ,
+            ),
 
             TextField(
               controller: withdrawController,
@@ -213,39 +239,42 @@ class _WithdrawPageState extends State<WithdrawPage> {
 
   void _handleWithdraw() async {
     final double withdraw = double.tryParse(withdrawController.text) ?? 0;
+    if (cardBank == null) {
+      Get.snackbar('Error', 'Please Create a card bank before withdrawing');
+      return;
+    }
     if (withdraw <= 0) {
       Get.snackbar('Error', 'Withdraw amount must be greater than 0');
       return;
     }
 
-    if (widget.balance != null && withdraw > widget.balance!) {
+    if (widget.balance == null || withdraw > widget.balance!) {
       Get.snackbar('Error', 'Withdraw amount cannot exceed current balance');
       return;
     }
 
     if (withdraw < 10 || withdraw > 20000) {
-      Get.snackbar('Error', 'Please enter a valid withdraw amount greater than USD 10 and less than or equal to USD 20,000');
+      Get.snackbar('Error',
+          'Please enter a valid withdraw amount greater than USD 10 and less than or equal to USD 20,000');
       return;
     }
 
     var permission = await TransactionLimiter.checkTransactionPermission();
     if (!permission['canPerform']) {
       int remainingMinutes = permission['remainingMinutes'] as int;
-      Get.snackbar(
-          'Hold On!',
-          'You must wait $remainingMinutes minute more minutes between WithDraw.'
-      );
+      Get.snackbar('Hold On!',
+          'You must wait $remainingMinutes minute more minutes between WithDraw.');
       return;
     }
 
     bool success = await DepositService.createWithdraw(
-        randomReferenceNumber, WithdrawDTO(
-      userId: widget.id.toString(),
-      withdraw: withdraw,
-      referenceNumber: randomReferenceNumber,
-      paymentDate: DateTime.now().toIso8601String(),
-    )
-    );
+        randomReferenceNumber,
+        WithdrawDTO(
+          userId: widget.id.toString(),
+          withdraw: withdraw,
+          referenceNumber: randomReferenceNumber,
+          paymentDate: DateTime.now().toIso8601String(),
+        ));
 
     if (success) {
       TransactionLimiter.updateLastTransactionTime();
@@ -254,6 +283,120 @@ class _WithdrawPageState extends State<WithdrawPage> {
       Get.off(() => FailedPage());
     }
   }
+
+  void _showRegisterCardBankDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Register New Card Bank", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: bankNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Bank Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: bankNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Bank Number',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: beneficiaryNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Beneficiary Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: addressBankController,
+                  decoration: InputDecoration(
+                    labelText: 'Bank Address',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text('Register', style: TextStyle(fontWeight: FontWeight.bold)),
+              onPressed: () {
+                _registerCardBank();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _registerCardBank() async {
+    // Check for null or invalid values before proceeding
+
+
+    if (bankNameController.text.isEmpty || bankNumberController.text.isEmpty || beneficiaryNameController.text.isEmpty || addressBankController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'All fields must be filled out',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }  // Print the values before the API call
+
+    bool success = await CardBankService.createNewCardBank(
+        bankNameController.text,
+        bankNumberController.text,
+        beneficiaryNameController.text,
+        addressBankController.text,
+        widget.id.toString(),
+    );
+
+
+    if (success) {
+      Get.snackbar(
+          'Success',
+          'Card bank registered successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: Duration(seconds: 5) // Set duration to allow longer reading time
+      );      Navigator.of(context).pop(); // Close dialog after successful registration
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to register card bank',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );    }
+
+
+  // Close the dialog regardless of the outcome to reset the form or prevent double submissions
+    Navigator.of(context).pop();
+
+
+  // Clear controllers if needed
+    bankNameController.clear();
+    bankNumberController.clear();
+    beneficiaryNameController.clear();
+    addressBankController.clear();
+
+    // Optionally display a confirmation message or handle the response
+  }
+
 }
-
-

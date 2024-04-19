@@ -35,7 +35,8 @@ class CardBankService {
   static Future<List<CardBankDTO>> getListCardBank() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/cardBank/admin'), // Adjust API endpoint if necessary
+        Uri.parse('$baseUrl/cardBank/admin'),
+        // Adjust API endpoint if necessary
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -53,4 +54,37 @@ class CardBankService {
       return [];
     }
   }
+
+  static Future<bool> createNewCardBank(String bankName, String bankNumber,
+      String beneficiaryName, String addressBank, String userId) async {
+    try {
+      // Construct the URL with query parameters
+      final queryParameters = {
+        'bankName': bankName,
+        'bankNumber': bankNumber,
+        'beneficiaryName': beneficiaryName,
+        'addressbank': addressBank,
+        'userId': userId,
+      };
+      final uri = Uri.parse('$baseUrl/cardBank/create').replace(queryParameters: queryParameters);
+
+      // Make the HTTP POST request
+      final response = await http.post(
+        uri,
+        // Omitting Content-Type since no JSON body is being sent, unless required by the server
+      );
+
+      if (response.statusCode == 200) {
+        print('Card bank created successfully');
+        return true; // Return true if the creation was successful
+      } else {
+        print('Failed to create card bank: HTTP status ${response.statusCode}');
+        return false; // Return false if the server responded with an error
+      }
+    } catch (e) {
+      print('Error creating card bank: $e');
+      return false; // Return false on exception
+    }
+  }
+
 }
