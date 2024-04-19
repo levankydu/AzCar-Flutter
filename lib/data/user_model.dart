@@ -36,7 +36,7 @@ class UserModel {
       gender: json['gender'] ?? '',
       dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
       image: json['image'] ?? '',
-      balance: json['balance']
+      balance: json['balance'],
       resetPasswordToken: json['resetPasswordToken'] ?? '',
     );
   }

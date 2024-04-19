@@ -318,7 +318,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ElevatedButton(
                               onPressed: _showTransactionDialog, // Reference to the method that shows the dialog
                               style: ElevatedButton.styleFrom(
-                                primary: themeData.secondaryHeaderColor, // Button color
+                                backgroundColor: themeData.secondaryHeaderColor, // Button color
                               ),
                               child: Text(
                                 'Transactions',

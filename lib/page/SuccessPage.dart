@@ -37,7 +37,7 @@ class SuccessPage extends StatelessWidget {
               },
               child: Text('Back to Home'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // Optional: Style the button
+                backgroundColor: Colors.green, // Optional: Style the button
               ),
             )
           ],
