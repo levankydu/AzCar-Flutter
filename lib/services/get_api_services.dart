@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../data/OrderDetails.dart';
 
 class ApiService {
+  //ipThao: http://192.168.56.1
   static const String baseUrl = 'http://192.168.56.1:8081';
 
   static Future<List<UserModel>> fetchPosts() async {

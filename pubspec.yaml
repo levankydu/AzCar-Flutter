@@ -30,8 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  clipboard: ^0.1.2+8
 
-
+  uuid: ^3.0.4
   get: ^4.6.6
   unicons: ^2.1.1
   google_fonts: 6.1.0

@@ -9,7 +9,7 @@ class UserModel {
   final String? gender; // gender may be nullable
   final DateTime? dob; // dob may be nullable
   final String image;
-  final Decimal? balance;
+  final double? balance;
 
   UserModel({
     required this.image,
@@ -20,7 +20,7 @@ class UserModel {
     this.phone,
     this.gender,
     this.dob,
-    this.balance,
+   required this.balance,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -33,7 +33,8 @@ class UserModel {
       gender: json['gender'],
       dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
       image: json['image'] ?? '',
-      balance: json['balance'] != null ? Decimal.parse(json['balance'].toString()) : null,
+      balance: json['balance']
+
     );
   }
 
@@ -47,7 +48,7 @@ class UserModel {
       'gender': gender,
       'dob': dob?.toIso8601String(),
       'image': image,
-      'balance': balance?.toString(),
+      'balance': balance,
     };
   }
 }

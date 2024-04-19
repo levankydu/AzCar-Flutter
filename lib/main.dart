@@ -1,3 +1,4 @@
+import 'package:az_car_flutter_app/page/DepositPage.dart';
 import 'package:az_car_flutter_app/page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,6 +28,7 @@ class _AppState extends State<App> {
         debugShowCheckedModeBanner: false,
         title: 'Car Rental App',
         home: const HomePage(),
+
         theme: lightModeTheme,
         darkTheme: darkModeTheme,
       );
