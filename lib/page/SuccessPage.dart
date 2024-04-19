@@ -22,7 +22,7 @@ class SuccessPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Your transaction has been successfully completed!',
+                'Your transaction has been successfully completed! Waiting for approval from admin!',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,

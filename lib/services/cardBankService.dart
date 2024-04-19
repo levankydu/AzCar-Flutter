@@ -1,9 +1,10 @@
 import 'package:az_car_flutter_app/data/CardBankDTO.dart'; // Ensure this DTO is correctly defined
+import 'package:az_car_flutter_app/services/get_api_services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CardBankService {
-  static const String baseUrl = 'http://192.168.56.1:8081';
+  static const String baseUrl = ApiService.baseUrl;
 
   static Future<CardBankDTO?> getCardBankByUserId(String userId) async {
     try {
@@ -41,10 +42,12 @@ class CardBankService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
-        return CardBankDTO.fromJsonList(jsonData);
+        List<dynamic> filteredData = jsonData.where((itemJson) {
+          return itemJson['active'] == 'Active';
+        }).toList();
+        return CardBankDTO.fromJsonList(filteredData);
       } else {
         print('Failed to load card banks: HTTP status ${response.statusCode}');
         return [];
