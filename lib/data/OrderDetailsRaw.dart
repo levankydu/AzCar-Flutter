@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'ExtraFee.dart';
 
-class OrderDetails {
+class OrderDetailsRaw {
   final int id;
   final String carId;
   final int userId;
@@ -20,9 +20,8 @@ class OrderDetails {
   final bool sameDistrict;
   final bool sameProvince;
   final String statusOnView;
-  final CarModel car;
 
-  OrderDetails({
+  OrderDetailsRaw({
     required this.id,
     required this.carId,
     required this.userId,
@@ -33,32 +32,30 @@ class OrderDetails {
     required this.deliveryAddress,
     required this.extraFee,
     required this.status,
-    required this.statusOnView,
     required this.createdAt,
     required this.updatedAt,
     required this.sameDistrict,
     required this.sameProvince,
-    required this.car,
+    required this.statusOnView,
   });
 
-  factory OrderDetails.fromJson(Map<String, dynamic> json) {
-    return OrderDetails(
-      id: json['id'],
-      carId: json['carId'],
-      userId: json['userId'],
-      totalRent: json['totalRent'],
-      fromDate: parseDateTime(json['fromDate']),
-      toDate: parseDateTime(json['toDate']),
-      differenceDate: json['differenceDate'],
-      deliveryAddress: json['deliveryAddress'],
-      extraFee: ExtraFee.fromJson(json['extraFee']),
-      status: json['status'],
-      statusOnView: json['statusOnView'],
-      createdAt: parseDateTime(json['createdAt']),
-      updatedAt: parseDateTime(json['updatedAt']),
-      sameDistrict: json['sameDistrict'],
-      sameProvince: json['sameProvince'],
-      car: CarModel.fromJson(json['car']),
+  factory OrderDetailsRaw.fromMap(Map<String, dynamic> map) {
+    return OrderDetailsRaw(
+      id: map['id'] ?? '',
+      carId: map['carId'] ?? '',
+      userId: map['userId'] ?? '',
+      totalRent: map['totalRent'] ?? 0.0,
+      fromDate: parseDateTime(map['fromDate']),
+      toDate: parseDateTime(map['toDate']),
+      differenceDate: map['differenceDate'] ?? 0,
+      deliveryAddress: map['deliveryAddress'] ?? '',
+      extraFee: map['extraFee'] ?? 0.0,
+      status: map['status'] ?? '',
+      createdAt: parseDateTime(map['createdAt']),
+      updatedAt: parseDateTime(map['updatedAt']),
+      sameDistrict: map['sameDistrict'] ?? false,
+      sameProvince: map['sameProvince'] ?? false,
+      statusOnView: map['statusOnView'] ?? '',
     );
   }
 }

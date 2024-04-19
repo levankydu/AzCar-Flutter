@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'package:az_car_flutter_app/data/OrderDetails.dart';
+import 'package:az_car_flutter_app/data/OrderDetailsRaw.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/bookingWidget.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/carDetailsWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
@@ -29,8 +30,11 @@ class DetailsPage extends StatefulWidget {
 }
 
 class _DetailsPageState extends State<DetailsPage> {
+  late bool isPopLoading = false;
+  late bool isOwner = false;
   late List<String> images;
   late List<String> orderSetDates = [];
+  late List<OrderDetailsRaw> orderListOfThisCar = [];
 
   @override
   void initState() {
@@ -40,18 +44,14 @@ class _DetailsPageState extends State<DetailsPage> {
             '${ApiService.baseUrl}/home/availablecars/flutter/img/${image.urlImage.toString()}')
         .toList();
     fetchOrderSetDates(widget.car.id.toString());
+    fetchOrderList(widget.car.id.toString());
+    isOwnerFunc();
   }
 
   Future<void> fetchOrderSetDates(String carId) async {
-    String? userId;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool checkValue = prefs.containsKey('id');
-    if (checkValue) {
-      userId = prefs.getString('id')!;
-    }
     final response = await http.get(
         Uri.parse(
-            '${ApiService.baseUrl}/api/cars/getOrderOfThisCar?carId=$carId&userId=$userId'),
+            '${ApiService.baseUrl}/api/cars/getOrderOfThisCar?carId=$carId'),
         headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -63,6 +63,30 @@ class _DetailsPageState extends State<DetailsPage> {
     } else {
       throw Exception('Failed to load data');
     }
+  }
+
+  Future<void> fetchOrderList(String carId) async {
+    final response = await http.get(
+        Uri.parse(
+            '${ApiService.baseUrl}/api/cars/getOrderOfThisCar?carId=$carId'),
+        headers: {'Content-Type': 'application/json'});
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      setState(() {
+        orderListOfThisCar =
+            data.map((json) => OrderDetailsRaw.fromMap(json)).toList();
+      });
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<void> isOwnerFunc() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString('id')!;
+    setState(() {
+      isOwner = widget.car.carOwnerId.toString() == userId;
+    });
   }
 
   String parseDateTime(String dateTimeString) {
@@ -193,7 +217,8 @@ class _DetailsPageState extends State<DetailsPage> {
                                 padding: EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200], // Màu nền của box
-                                  borderRadius: BorderRadius.circular(8.0), // Bo góc của box
+                                  borderRadius: BorderRadius.circular(
+                                      8.0), // Bo góc của box
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,33 +239,277 @@ class _DetailsPageState extends State<DetailsPage> {
                           ),
                         ),
                       ),
-                    Padding(
-                      padding: const EdgeInsets.all(50.0),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.only(bottom: 16.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    BookingWidget(car: widget.car),
+                    !isOwner
+                        ? Padding(
+                            padding: const EdgeInsets.all(50.0),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.only(bottom: 16.0),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookingWidget(car: widget.car),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                                  backgroundColor:
+                                      themeData.secondaryHeaderColor,
+                                ),
+                                child: Text(
+                                  'Book This Car',
+                                  style: TextStyle(
+                                      fontSize: 18.0, color: Colors.white),
+                                ),
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
-                            backgroundColor: themeData.secondaryHeaderColor,
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: orderListOfThisCar.length,
+                                itemBuilder: (context, index) {
+                                  OrderDetailsRaw order =
+                                      orderListOfThisCar[index];
+                                  return Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        ListTile(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 15.0, horizontal: 25.0),
+                                          title: Text('Order ID: ${order.id}'),
+                                          subtitle: Text(
+                                              '[${widget.car.carmodel.brand}] ${widget.car.carmodel.model}'),
+                                          // Add other details here based on your requirements
+                                          trailing: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                order.statusOnView,
+                                                style: TextStyle(
+                                                  color: order.statusOnView ==
+                                                              'DECLINED' ||
+                                                          order.statusOnView ==
+                                                              'RENTOR DECLINED'
+                                                      ? Colors.red
+                                                      : (order.statusOnView ==
+                                                                  'ACCEPTED' ||
+                                                              order.statusOnView ==
+                                                                  'OWNER TRIP DONE'
+                                                          ? Colors.green
+                                                          : Colors
+                                                              .orange), // Màu chữ
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              // Add some spacing between status and date
+                                              Text(
+                                                'From: ${order.fromDate}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize:
+                                                      12, // Adjust font size as needed
+                                                ),
+                                              ),
+                                              Text(
+                                                'To: ${order.toDate}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize:
+                                                      12, // Adjust font size as needed
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        // Add some spacing before the button
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            order.statusOnView ==
+                                                    'WAITING FOR ACCEPTED'
+                                                ? ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 10.0,
+                                                              horizontal: 15),
+                                                      backgroundColor: themeData
+                                                          .secondaryHeaderColor,
+                                                    ),
+                                                    onPressed: () {
+                                                      // Hiển thị popup yes/no
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            title: Text(
+                                                                'Confirmation'),
+                                                            content: Text(
+                                                                'Are you sure you want to proceed?'),
+                                                            actions: [
+                                                              isPopLoading
+                                                                  ? CircularProgressIndicator()
+                                                                  : Row(
+                                                                      children: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () async {
+                                                                            setState(() {
+                                                                              isPopLoading = true;
+                                                                            });
+                                                                            final response =
+                                                                                await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/ownerAccepted?orderId=${order.id}'), headers: {
+                                                                              'Content-Type': 'application/json'
+                                                                            });
+                                                                            Navigator.of(context).pop();
+                                                                            if (response.statusCode ==
+                                                                                200) {
+                                                                              await Fluttertoast.showToast(msg: 'Successfully accept rental', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                                                                              setState(() {
+                                                                                isPopLoading = false;
+                                                                              });
+                                                                            } else {
+                                                                              await Fluttertoast.showToast(msg: 'Failed, try again', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                                                                            }
+                                                                          },
+                                                                          child:
+                                                                              Text('Yes'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            // Hành động khi bấm No
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              Text('No'),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      'Accept Order',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  )
+                                                : SizedBox(),
+                                            order.statusOnView ==
+                                                    'WAITING FOR ACCEPT'
+                                                ? ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 10.0,
+                                                              horizontal: 15),
+                                                      backgroundColor:
+                                                          Colors.redAccent,
+                                                    ),
+                                                    onPressed: () {
+                                                      // Hiển thị popup yes/no
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            title: Text(
+                                                                'Confirmation'),
+                                                            content: Text(
+                                                                'Are you sure you want to proceed?'),
+                                                            actions: [
+                                                              isPopLoading
+                                                                  ? CircularProgressIndicator()
+                                                                  : Row(
+                                                                      children: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () async {
+                                                                            setState(() {
+                                                                              isPopLoading = true;
+                                                                            });
+                                                                            final response =
+                                                                                await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/ownerDeclined?orderId=${order.id}'), headers: {
+                                                                              'Content-Type': 'application/json'
+                                                                            });
+                                                                            Navigator.of(context).pop();
+                                                                            if (response.statusCode ==
+                                                                                200) {
+                                                                              await Fluttertoast.showToast(msg: 'Successfully cancel order', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                                                                              setState(() {
+                                                                                isPopLoading = false;
+                                                                              });
+                                                                            } else {
+                                                                              await Fluttertoast.showToast(msg: 'Failed, try again', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                                                                            }
+                                                                          },
+                                                                          child:
+                                                                              Text('Yes'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            // Hành động khi bấm No
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              Text('No'),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      'Cancel Order',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  )
+                                                : SizedBox(),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                            ],
                           ),
-                          child: Text(
-                            'Book This Car',
-                            style:
-                                TextStyle(fontSize: 18.0, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

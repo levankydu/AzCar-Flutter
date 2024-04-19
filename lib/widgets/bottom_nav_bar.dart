@@ -1,4 +1,5 @@
 import 'package:az_car_flutter_app/page/my_plan.dart';
+import 'package:az_car_flutter_app/page/orderPage.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +25,7 @@ Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
           print(value);
           break;
         case 1:
-          print(value);
+          Get.to(()=>OrderPage());
           break;
         case 2:
           print(value);
