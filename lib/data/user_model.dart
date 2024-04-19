@@ -10,8 +10,9 @@ class UserModel {
   late String gender; // gender may be nullable
   late DateTime? dob; // dob may be nullable
   final String image;
+  final double? balance;
   late String resetPasswordToken;
-  final Decimal? balance;
+
   UserModel({
     required this.image,
     required this.id,
@@ -22,7 +23,7 @@ class UserModel {
     required this.gender,
     required this.dob,
     required this.resetPasswordToken,
-    this.balance,
+    required this.balance,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -35,8 +36,8 @@ class UserModel {
       gender: json['gender'] ?? '',
       dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
       image: json['image'] ?? '',
+      balance: json['balance']
       resetPasswordToken: json['resetPasswordToken'] ?? '',
-      balance: json['balance'] != null ? Decimal.parse(json['balance'].toString()) : null,
     );
   }
 
@@ -50,8 +51,8 @@ class UserModel {
       'gender': gender,
       'dob': dob != null ? DateFormat('yyyy-MM-dd').format(dob!) : null,
       'image': image,
+      'balance': balance,
       'resetPasswordToken': resetPasswordToken,
-      'balance': balance?.toString(),
     };
   }
 }
