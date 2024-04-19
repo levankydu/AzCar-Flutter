@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:az_car_flutter_app/data/OrderDetails.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/bookingWidget.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/carDetailsWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,71 +30,45 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   late List<String> images;
-  late TextEditingController fromDateController;
-  late TextEditingController toDateController;
-  late List<Province> provinces;
+  late List<String> orderSetDates = [];
 
   @override
   void initState() {
     super.initState();
-    fromDateController = TextEditingController();
-    toDateController = TextEditingController();
     images = widget.car.images
         .map((image) =>
             '${ApiService.baseUrl}/home/availablecars/flutter/img/${image.urlImage.toString()}')
         .toList();
-    provinces = [];
-    fetchProvinceData();
+    fetchOrderSetDates(widget.car.id.toString());
   }
 
-  @override
-  void dispose() {
-    fromDateController.dispose();
-    toDateController.dispose();
-    super.dispose();
-  }
-
-  Future<void> fetchProvinceData() async {
+  Future<void> fetchOrderSetDates(String carId) async {
+    String? userId;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkValue = prefs.containsKey('id');
+    if (checkValue) {
+      userId = prefs.getString('id')!;
+    }
     final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/api/cars/getProvinces'),
+        Uri.parse(
+            '${ApiService.baseUrl}/api/cars/getOrderOfThisCar?carId=$carId&userId=$userId'),
         headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
-        provinces = data.map((json) => Province.fromJson(json)).toList();
+        orderSetDates = data.map((json) {
+          return '* From ${parseDateTime(json['fromDate'])} to ${parseDateTime(json['toDate'])}';
+        }).toList();
       });
     } else {
       throw Exception('Failed to load data');
     }
   }
 
-  Future<List<District>> fetchDistrictData(String provinceCode) async {
-    String url =
-        '${ApiService.baseUrl}/api/cars/getDistricts?provinceCode=$provinceCode';
-    final response = await http
-        .get(headers: {'Content-Type': 'application/json'}, Uri.parse(url));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      List<District> districts =
-          data.map((json) => District.fromJson(json)).toList();
-      return districts;
-    } else {
-      throw Exception('Failed to load districts');
-    }
-  }
-
-  Future<List<Ward>> fetchWardData(String districtCode) async {
-    final response = await http.get(
-        Uri.parse(
-            '${ApiService.baseUrl}/api/cars/getWards?districtCode=$districtCode'),
-        headers: {'Content-Type': 'application/json'});
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      List<Ward> wards = data.map((json) => Ward.fromJson(json)).toList();
-      return wards;
-    } else {
-      throw Exception('Failed to load ward data');
-    }
+  String parseDateTime(String dateTimeString) {
+    DateTime dateTime = DateTime.parse(dateTimeString);
+    String formattedDate = DateFormat('dd-MM-yyyy').format(dateTime);
+    return formattedDate;
   }
 
   @override
@@ -107,7 +84,7 @@ class _DetailsPageState extends State<DetailsPage> {
           shadowColor: Colors.transparent,
           backgroundColor: themeData.colorScheme.background,
           leading: Padding(
-            padding: EdgeInsets.only(left: size.width * 0.05),
+            padding: EdgeInsets.only(left: size.width * 0.05, bottom: 7),
             child: SizedBox(
               height: size.width * 0.1,
               width: size.width * 0.1,
@@ -117,15 +94,15 @@ class _DetailsPageState extends State<DetailsPage> {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: themeData.cardColor,
+                    color: themeData.colorScheme.background,
                     borderRadius: const BorderRadius.all(
                       Radius.circular(10),
                     ),
                   ),
                   child: Icon(
-                    UniconsLine.multiply,
+                    UniconsLine.arrow_circle_left,
                     color: themeData.secondaryHeaderColor,
-                    size: size.height * 0.025,
+                    size: size.height * 0.045,
                   ),
                 ),
               ),
@@ -147,32 +124,30 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: Center(
-        child: Container(
-          height: size.height,
-          width: size.height,
-          decoration: BoxDecoration(
-            color: themeData.colorScheme.background,
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-              child: Stack(
-                children: [
-                  ListView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 2.0,
-                        child: Center(
-                          child: CarouselSlider(
-                            options: CarouselOptions(
-                              aspectRatio: 16 / 9,
-                              autoPlay: true,
-                              enlargeCenterPage: true,
-                            ),
-                            items: images.map((url) {
-                              return Builder(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.background,
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                child: Column(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 2.0,
+                      child: Center(
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            aspectRatio: 16 / 9,
+                            autoPlay: true,
+                            enlargeCenterPage: true,
+                          ),
+                          items: images.map((url) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Builder(
                                 builder: (BuildContext context) {
                                   return Container(
                                     width: MediaQuery.of(context).size.width,
@@ -187,41 +162,87 @@ class _DetailsPageState extends State<DetailsPage> {
                                     ),
                                   );
                                 },
-                              );
-                            }).toList(),
-                          ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                      CarDetailsWidget(
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: CarDetailsWidget(
                           car: widget.car, size: size, themeData: themeData),
-                      Padding(
-                        padding: const EdgeInsets.all(50.0),
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.only(bottom: 16.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BookingWidget(car: widget.car),
+                    ),
+                    if (orderSetDates.isNotEmpty)
+                      SizedBox(
+                        width: size.width * 0.9,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Booked Dates', // Tiêu đề
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xff3b22a1),
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 16.0),
-                              backgroundColor: themeData.secondaryHeaderColor,
-                            ),
-                            child: Text(
-                              'Book This Car',
-                              style: TextStyle(fontSize: 18.0, color: Colors.white), // Kích thước chữ
-                            ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Màu nền của box
+                                  borderRadius: BorderRadius.circular(8.0), // Bo góc của box
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: orderSetDates.map((date) {
+                                    return Center(
+                                      child: Text(
+                                        date,
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(50.0),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.only(bottom: 16.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BookingWidget(car: widget.car),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            backgroundColor: themeData.secondaryHeaderColor,
+                          ),
+                          child: Text(
+                            'Book This Car',
+                            style:
+                                TextStyle(fontSize: 18.0, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

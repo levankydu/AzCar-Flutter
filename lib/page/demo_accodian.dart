@@ -122,15 +122,6 @@ class _AccordionPageState extends State<AccordionPage> {
                     top: size.height * 0.001,
                     left: size.width * 0.05,
                   ),
-                  child: Text(
-                    'My Cars',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      color: themeData.secondaryHeaderColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.055,
-                    ),
-                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -230,7 +221,7 @@ class _AccordionPageState extends State<AccordionPage> {
                                         Row(
                                           children: [
                                             Text(
-                                              '${_carsFuture![i].price}\$',
+                                              '\$${_carsFuture![i].discount > 0 ? (_carsFuture![i].price - (_carsFuture![i].discount * _carsFuture![i].price / 100)).toStringAsFixed(2) : _carsFuture![i].price}',
                                               style: GoogleFonts.poppins(
                                                 color: themeData.secondaryHeaderColor,
                                                 fontSize: size.width * 0.06,
@@ -251,8 +242,6 @@ class _AccordionPageState extends State<AccordionPage> {
                                                 right: size.width * 0.025,
                                               ),
                                               child: SizedBox(
-                                                height: size.width * 0.1,
-                                                width: size.width * 0.1,
                                                 child: Container(
                                                   decoration: const BoxDecoration(
                                                     color: Color(0xff3b22a1),
@@ -262,10 +251,20 @@ class _AccordionPageState extends State<AccordionPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  child: const Icon(
-                                                    UniconsLine.credit_card,
-                                                    color: Colors.white,
-                                                  ),
+                                                  child: _carsFuture![i].discount > 0
+                                                      ? Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        left: 3, right: 3),
+                                                    child: Text(
+                                                      '${_carsFuture![i].discount}%',
+                                                      style: GoogleFonts.poppins(
+                                                        color: Colors.white,
+                                                        fontSize: size.width * 0.04,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : SizedBox(),
                                                 ),
                                               ),
                                             ),
