@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: ClipOval(
                       child: Image(
-                        image: NetworkImage(user != null
+                        image: NetworkImage(user?.image !=''
                             ? '${ApiService.baseUrl}/user/profile/flutter/avatar/${user?.image}'
                             : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='),
                         fit: BoxFit.cover, // Adjust the fit as needed
