@@ -1,5 +1,6 @@
 import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:az_car_flutter_app/page/home_page.dart';
+
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
@@ -180,16 +181,20 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
                   ),
                   child: Align(
                     alignment: Alignment.topLeft,
-                    child: Text(
-                      'Welcome to AzCar, ',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.poppins(
-                        color: themeData.secondaryHeaderColor,
-                        fontSize: size.width * 0.06,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,  // Đảm bảo Row không mở rộng quá nhiều
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Chào mừng đến với AzCar, ',
+                            style: GoogleFonts.poppins(
+                              color: themeData.secondaryHeaderColor,
+                              fontSize: size.width * 0.06,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                          ],  ),  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
