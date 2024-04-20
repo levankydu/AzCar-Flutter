@@ -205,12 +205,18 @@ class _DetailsPageState extends State<DetailsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Booked Dates', // Tiêu đề
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xff3b22a1),
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 10.0, bottom: 10),
+                                  child: Text(
+                                    'Booked Dates', // Tiêu đề
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xff3b22a1),
+                                    ),
+                                  ),
                                 ),
                               ),
                               Container(
@@ -270,6 +276,17 @@ class _DetailsPageState extends State<DetailsPage> {
                           )
                         : Column(
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 30),
+                                child: Text(
+                                  'Orders of [${widget.car.carmodel.brand}] - ${widget.car.carmodel.model}', // Tiêu đề
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xff3b22a1),
+                                  ),
+                                ),
+                              ),
                               ListView.builder(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
@@ -347,13 +364,13 @@ class _DetailsPageState extends State<DetailsPage> {
                                         ),
                                         SizedBox(height: 8),
                                         // Add some spacing before the button
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            order.statusOnView ==
-                                                    'WAITING FOR ACCEPTED'
-                                                ? ElevatedButton(
+                                        order.status ==
+                                                'waiting_for_accept'
+                                            ? Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  ElevatedButton(
                                                     style: ElevatedButton
                                                         .styleFrom(
                                                       padding:
@@ -424,11 +441,8 @@ class _DetailsPageState extends State<DetailsPage> {
                                                       style: TextStyle(
                                                           color: Colors.white),
                                                     ),
-                                                  )
-                                                : SizedBox(),
-                                            order.statusOnView ==
-                                                    'WAITING FOR ACCEPT'
-                                                ? ElevatedButton(
+                                                  ),
+                                                  ElevatedButton(
                                                     style: ElevatedButton
                                                         .styleFrom(
                                                       padding:
@@ -499,10 +513,10 @@ class _DetailsPageState extends State<DetailsPage> {
                                                       style: TextStyle(
                                                           color: Colors.white),
                                                     ),
-                                                  )
-                                                : SizedBox(),
-                                          ],
-                                        ),
+                                                  ),
+                                                ],
+                                              )
+                                            : SizedBox(),
                                       ],
                                     ),
                                   );

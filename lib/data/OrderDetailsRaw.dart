@@ -49,7 +49,7 @@ class OrderDetailsRaw {
       toDate: parseDateTime(map['toDate']),
       differenceDate: map['differenceDate'] ?? 0,
       deliveryAddress: map['deliveryAddress'] ?? '',
-      extraFee: map['extraFee'] ?? 0.0,
+      extraFee: ExtraFee.fromJson(map['extraFee']),
       status: map['status'] ?? '',
       createdAt: parseDateTime(map['createdAt']),
       updatedAt: parseDateTime(map['updatedAt']),
