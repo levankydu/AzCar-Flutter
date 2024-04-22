@@ -1,21 +1,18 @@
 import 'dart:convert';
+
 import 'package:az_car_flutter_app/data/OrderDetailsRaw.dart';
+import 'package:az_car_flutter_app/data/carModel.dart';
+import 'package:az_car_flutter_app/services/get_api_services.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/bookingWidget.dart';
 import 'package:az_car_flutter_app/widgets/detailsPage/carDetailsWidget.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:az_car_flutter_app/data/DIstrict.dart';
-import 'package:az_car_flutter_app/data/Province.dart';
-import 'package:az_car_flutter_app/data/Ward.dart';
-import 'package:az_car_flutter_app/data/carModel.dart';
-import 'package:az_car_flutter_app/services/get_api_services.dart';
 
 class DetailsPage extends StatefulWidget {
   final CarModel car;
@@ -364,8 +361,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                         ),
                                         SizedBox(height: 8),
                                         // Add some spacing before the button
-                                        order.status ==
-                                                'waiting_for_accept'
+                                        order.status == 'waiting_for_accept'
                                             ? Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
@@ -516,7 +512,95 @@ class _DetailsPageState extends State<DetailsPage> {
                                                   ),
                                                 ],
                                               )
-                                            : SizedBox(),
+                                            : order.status == 'rentor_trip_done'
+                                                ? ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 10.0,
+                                                              horizontal: 15),
+                                                      backgroundColor: themeData
+                                                          .secondaryHeaderColor,
+                                                    ),
+                                                    onPressed: () {
+                                                      // Hiển thị popup yes/no
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            title: Text(
+                                                                'Confirmation'),
+                                                            content: Text(
+                                                                'Are you sure you want to proceed?'),
+                                                            actions: [
+                                                              isPopLoading
+                                                                  ? CircularProgressIndicator()
+                                                                  : Row(
+                                                                      children: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () async {
+                                                                            setState(() {
+                                                                              isPopLoading = true;
+                                                                            });
+                                                                            String
+                                                                                carId =
+                                                                                widget.car.id.toString();
+                                                                            String
+                                                                                orderId =
+                                                                                order.id.toString();
+                                                                            bool
+                                                                                smellCheck =
+                                                                                true;
+                                                                            bool
+                                                                                cleanCheck =
+                                                                                true;
+                                                                            String
+                                                                                description =
+                                                                                "Very good";
+                                                                            final response =
+                                                                                await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/ownerFinishReview?cleanCheck=$cleanCheck&smellCheck=$smellCheck&description=$description&carId=$carId&orderId=$orderId'), headers: {
+                                                                              'Content-Type': 'application/json'
+                                                                            });
+                                                                            Navigator.of(context).pop();
+                                                                            if (response.statusCode ==
+                                                                                200) {
+                                                                              await Fluttertoast.showToast(msg: 'Successfully send review', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                                                                              setState(() {
+                                                                                isPopLoading = false;
+                                                                              });
+                                                                            } else {
+                                                                              await Fluttertoast.showToast(msg: 'Failed, try again', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 5, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                                                                            }
+                                                                          },
+                                                                          child:
+                                                                              Text('Yes'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            // Hành động khi bấm No
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              Text('No'),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      'Rental Review',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  )
+                                                : SizedBox(),
                                       ],
                                     ),
                                   );

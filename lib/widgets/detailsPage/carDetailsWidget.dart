@@ -202,7 +202,7 @@ class CarDetailsWidget extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor.withOpacity(0.6),
-                            fontSize: size.width * 0.03,
+                            fontSize: size.width * 0.025,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -211,7 +211,7 @@ class CarDetailsWidget extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor.withOpacity(0.6),
-                            fontSize: size.width * 0.03,
+                            fontSize: size.width * 0.025,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

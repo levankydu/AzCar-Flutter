@@ -43,10 +43,10 @@ class OrderDetails {
 
   factory OrderDetails.fromJson(Map<String, dynamic> json) {
     return OrderDetails(
-      id: json['id'],
-      carId: json['carId'],
-      userId: json['userId'],
-      totalRent: json['totalRent'],
+      id: json['id']??0,
+      carId: json['carId']??'',
+      userId: json['userId']??0,
+      totalRent: json['totalRent']??0,
       fromDate: parseDateTime(json['fromDate']),
       toDate: parseDateTime(json['toDate']),
       differenceDate: json['differenceDate'],

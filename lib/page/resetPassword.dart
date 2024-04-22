@@ -133,7 +133,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   void savePassword(String password) {
-    _showSnackBar(context, 'Password changed successfully', true);
+    _showSnackBar(context, 'Password reset successfully', true);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginSignupScreen()),

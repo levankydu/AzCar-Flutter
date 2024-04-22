@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import '../data/OrderDetails.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://172.16.1.133:8081';
+  static const String baseUrl = 'http://192.168.1.9:8081';
 
   static Future<List<UserModel>> fetchPosts() async {
     final response = await http.get(Uri.parse('$baseUrl/api/auth/getUsers'));
@@ -44,7 +44,7 @@ class ApiService {
       return false;
     } else {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/signup'),
+        Uri.parse('$baseUrl/api/auth/signup'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -147,7 +147,7 @@ class ApiService {
   }
 
   static Future<UserModel?> editUser(UserModel userModel) async {
-    final response = await http.post(Uri.parse('$baseUrl/editUser'),
+    final response = await http.post(Uri.parse('$baseUrl/api/auth/editUser'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -172,7 +172,7 @@ class ApiService {
 
   static Future<bool> forgotPassword(String email) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/forgot_password'),
+      Uri.parse('$baseUrl/api/auth/forgot_password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -190,7 +190,7 @@ class ApiService {
 
   static Future<bool> tokenProcess(String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/tokenProcess'),
+      Uri.parse('$baseUrl/api/auth/tokenProcess'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -208,7 +208,7 @@ class ApiService {
 
   static Future<bool> resetPassword(String token, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/resetPassword'),
+      Uri.parse('$baseUrl/api/auth/resetPassword'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
