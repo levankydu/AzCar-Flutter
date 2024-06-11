@@ -69,7 +69,7 @@ class CarModel {
       status: json['status'],
       price: json['price'].toDouble(),
       description: json['description'],
-      discount: json['discount'],
+      discount: json['discount'] ??0,
       rules: json['rules'],
       address: json['address'],
       images: (json['images'] as List)
