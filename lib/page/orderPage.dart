@@ -37,10 +37,7 @@ class _OrderPageState extends State<OrderPage> {
     bool checkValue = prefs.containsKey('id');
     if (checkValue) {
       userId = prefs.getString('id')!;
-      final response = await http.get(
-          Uri.parse(
-              '${ApiService.baseUrl}/api/cars/getOrderByUser?userId=$userId'),
-          headers: {'Content-Type': 'application/json'});
+      final response = await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/getOrderByUser?userId=$userId'), headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -99,9 +96,7 @@ class _OrderPageState extends State<OrderPage> {
           titleSpacing: 0,
           leadingWidth: size.width * 0.15,
           title: Image.asset(
-            themeData.brightness == Brightness.dark
-                ? 'assets/images/logo-azcar.png'
-                : 'assets/images/logo-azcar.png',
+            themeData.brightness == Brightness.dark ? 'assets/images/logo-azcar.png' : 'assets/images/logo-azcar.png',
             alignment: Alignment.bottomCenter,
             height: size.height * 0.05,
             width: size.width * 0.35,
@@ -124,8 +119,7 @@ class _OrderPageState extends State<OrderPage> {
                 itemBuilder: (context, index) {
                   OrderDetails order = orderList[index];
                   return Container(
-                    margin:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15.0),
@@ -142,11 +136,9 @@ class _OrderPageState extends State<OrderPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 25.0),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 25.0),
                           title: Text('Order ID: ${order.id}'),
-                          subtitle: Text(
-                              '[${order.car.carmodel.brand}] ${order.car.carmodel.model}'),
+                          subtitle: Text('[${order.car.carmodel.brand}] ${order.car.carmodel.model}'),
                           // Add other details here based on your requirements
                           trailing: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -154,15 +146,9 @@ class _OrderPageState extends State<OrderPage> {
                               Text(
                                 order.statusOnView,
                                 style: TextStyle(
-                                  color: order.statusOnView == 'DECLINED' ||
-                                          order.statusOnView ==
-                                              'RENTOR DECLINED'
+                                  color: order.statusOnView == 'DECLINED' || order.statusOnView == 'RENTOR DECLINED'
                                       ? Colors.red
-                                      : (order.statusOnView == 'ACCEPTED' ||
-                                              order.statusOnView ==
-                                                  'OWNER TRIP DONE'
-                                          ? Colors.green
-                                          : Colors.orange), // Màu chữ
+                                      : (order.statusOnView == 'ACCEPTED' || order.statusOnView == 'OWNER TRIP DONE' ? Colors.green : Colors.orange), // Màu chữ
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -189,231 +175,189 @@ class _OrderPageState extends State<OrderPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            isInDateRange(order.fromDate, order.toDate) &&
-                                    order.statusOnView == 'ACCEPTED'
+                            isInDateRange(order.fromDate, order.toDate) && order.statusOnView == 'ACCEPTED'
                                 ? ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 10.0, horizontal: 15),
-                                      backgroundColor:
-                                          themeData.secondaryHeaderColor,
-                                    ),
-                                    onPressed: () {
-                                      // Hiển thị popup yes/no
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Confirmation'),
-                                            content: Text(
-                                                'Are you sure you want to proceed?'),
-                                            actions: [
-                                              isPopLoading
-                                                  ? CircularProgressIndicator()
-                                                  : Row(
-                                                      children: [
-                                                        TextButton(
-                                                          onPressed: () async {
-                                                            setState(() {
-                                                              isPopLoading =
-                                                                  true;
-                                                            });
-                                                            final response =
-                                                                await http.get(
-                                                                    Uri.parse(
-                                                                        '${ApiService.baseUrl}/api/cars/userRentalDone?orderId=${order.id}'),
-                                                                    headers: {
-                                                                  'Content-Type':
-                                                                      'application/json'
-                                                                });
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                            if (response
-                                                                    .statusCode ==
-                                                                200) {
-                                                              await Fluttertoast.showToast(
-                                                                  msg:
-                                                                      'Successfully finish rental',
-                                                                  toastLength: Toast
-                                                                      .LENGTH_LONG,
-                                                                  gravity:
-                                                                      ToastGravity
-                                                                          .TOP,
-                                                                  timeInSecForIosWeb:
-                                                                      5,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  textColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontSize:
-                                                                      16.0);
-                                                              setState(() {
-                                                                isPopLoading =
-                                                                    false;
-                                                              });
-                                                              Get.to(() =>
-                                                                  OrderPage());
-                                                            } else {
-                                                              await Fluttertoast.showToast(
-                                                                  msg:
-                                                                      'Failed, try again',
-                                                                  toastLength: Toast
-                                                                      .LENGTH_LONG,
-                                                                  gravity:
-                                                                      ToastGravity
-                                                                          .TOP,
-                                                                  timeInSecForIosWeb:
-                                                                      5,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .red,
-                                                                  textColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontSize:
-                                                                      16.0);
-                                                            }
-                                                          },
-                                                          child: Text('Yes'),
-                                                        ),
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            // Hành động khi bấm No
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: Text('No'),
-                                                        ),
-                                                      ],
-                                                    ),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
+                                backgroundColor: themeData.secondaryHeaderColor,
+                              ),
+                              onPressed: () {
+                                // Hiển thị popup yes/no
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    bool isPopLoading = false;
+                                    return StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return AlertDialog(
+                                          title: Text('Confirmation'),
+                                          content: isPopLoading
+                                              ? Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(),
                                             ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      'Finished Rental',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  )
+                                          )
+                                              : Text('Are you sure you want to proceed?'),
+                                          actions: isPopLoading
+                                              ? []
+                                              : [
+                                            Row(
+                                              children: [
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    setState(() {
+                                                      isPopLoading = true;
+                                                    });
+                                                    final response = await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/userRentalDone?orderId=${order.id}'), headers: {'Content-Type': 'application/json'});
+                                                    Navigator.of(context).pop();
+                                                    if (response.statusCode == 200) {
+                                                      await Fluttertoast.showToast(
+                                                          msg: 'Successfully finish rental',
+                                                          toastLength: Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity.TOP,
+                                                          timeInSecForIosWeb: 5,
+                                                          backgroundColor: Colors.green,
+                                                          textColor: Colors.white,
+                                                          fontSize: 16.0);
+                                                      setState(() {
+                                                        isPopLoading = false;
+                                                      });
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => OrderPage(),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      await Fluttertoast.showToast(
+                                                          msg: 'Failed, try again',
+                                                          toastLength: Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity.TOP,
+                                                          timeInSecForIosWeb: 5,
+                                                          backgroundColor: Colors.red,
+                                                          textColor: Colors.white,
+                                                          fontSize: 16.0);
+                                                      setState(() {
+                                                        isPopLoading = false;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Text('Yes'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // Hành động khi bấm No
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('No'),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                'Finished Rental',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
                                 : SizedBox(),
-                            !isInDateRange(order.fromDate, order.toDate) &&
-                                    (order.statusOnView == 'ACCEPTED' ||
-                                        order.statusOnView ==
-                                            'WAITING FOR ACCEPT')
+                            !isInDateRange(order.fromDate, order.toDate) && (order.statusOnView == 'ACCEPTED' || order.statusOnView == 'WAITING FOR ACCEPT')
                                 ? ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 10.0, horizontal: 15),
-                                      backgroundColor:
-                                          Colors.redAccent,
-                                    ),
-                                    onPressed: () {
-                                      // Hiển thị popup yes/no
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Confirmation'),
-                                            content: Text(
-                                                'Are you sure you want to proceed?'),
-                                            actions: [
-                                              isPopLoading
-                                                  ? CircularProgressIndicator()
-                                                  : Row(
-                                                      children: [
-                                                        TextButton(
-                                                          onPressed: () async {
-                                                            setState(() {
-                                                              isPopLoading =
-                                                                  true;
-                                                            });
-                                                            final response =
-                                                                await http.get(
-                                                                    Uri.parse(
-                                                                        '${ApiService.baseUrl}/api/cars/userCancel?orderId=${order.id}'),
-                                                                    headers: {
-                                                                  'Content-Type':
-                                                                      'application/json'
-                                                                });
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                            if (response
-                                                                    .statusCode ==
-                                                                200) {
-                                                              await Fluttertoast.showToast(
-                                                                  msg:
-                                                                      'Successfully cancel order',
-                                                                  toastLength: Toast
-                                                                      .LENGTH_LONG,
-                                                                  gravity:
-                                                                      ToastGravity
-                                                                          .TOP,
-                                                                  timeInSecForIosWeb:
-                                                                      5,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  textColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontSize:
-                                                                      16.0);
-                                                              setState(() {
-                                                                isPopLoading =
-                                                                    false;
-                                                              });
-                                                              Get.to(() =>
-                                                                  OrderPage());
-                                                            } else {
-                                                              await Fluttertoast.showToast(
-                                                                  msg:
-                                                                      'Failed, try again',
-                                                                  toastLength: Toast
-                                                                      .LENGTH_LONG,
-                                                                  gravity:
-                                                                      ToastGravity
-                                                                          .TOP,
-                                                                  timeInSecForIosWeb:
-                                                                      5,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .red,
-                                                                  textColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontSize:
-                                                                      16.0);
-                                                            }
-                                                          },
-                                                          child: Text('Yes'),
-                                                        ),
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            // Hành động khi bấm No
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: Text('No'),
-                                                        ),
-                                                      ],
-                                                    ),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                              onPressed: () {
+                                // Hiển thị popup yes/no
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    bool isPopLoading = false;
+                                    return StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return AlertDialog(
+                                          title: Text('Confirmation'),
+                                          content: isPopLoading
+                                              ? Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(),
                                             ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      'Cancel Order',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  )
+                                          )
+                                              : Text('Are you sure you want to proceed?'),
+                                          actions: isPopLoading
+                                              ? []
+                                              : [
+                                            Row(
+                                              children: [
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    setState(() {
+                                                      isPopLoading = true;
+                                                    });
+                                                    final response = await http.get(Uri.parse('${ApiService.baseUrl}/api/cars/userCancel?orderId=${order.id}'), headers: {'Content-Type': 'application/json'});
+                                                    Navigator.of(context).pop();
+                                                    if (response.statusCode == 200) {
+                                                      await Fluttertoast.showToast(
+                                                          msg: 'Successfully cancel order',
+                                                          toastLength: Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity.TOP,
+                                                          timeInSecForIosWeb: 5,
+                                                          backgroundColor: Colors.green,
+                                                          textColor: Colors.white,
+                                                          fontSize: 16.0);
+                                                      setState(() {
+                                                        isPopLoading = false;
+                                                      });
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => OrderPage(),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      await Fluttertoast.showToast(
+                                                          msg: 'Failed, try again',
+                                                          toastLength: Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity.TOP,
+                                                          timeInSecForIosWeb: 5,
+                                                          backgroundColor: Colors.red,
+                                                          textColor: Colors.white,
+                                                          fontSize: 16.0);
+                                                      setState(() {
+                                                        isPopLoading = false;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Text('Yes'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // Hành động khi bấm No
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('No'),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                'Cancel Order',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
                                 : SizedBox(),
                           ],
                         ),
