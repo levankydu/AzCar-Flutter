@@ -1195,7 +1195,7 @@ class _CarRegisterState extends State<CarRegister> {
                                   height: 20.0,
                                 ),
                                 Text(
-                                  'Image Picker Info',
+                                  'Review Images Chosen',
                                   textAlign: TextAlign.start,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,

@@ -206,7 +206,22 @@ class ApiService {
       return false;
     }
   }
-
+  static Future<String> changePassword(String email, String oldPassword, String newPassword, String confirmPassword) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/changePassword'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword
+      }),
+    );
+    print(response.body.toString());
+    return response.body.toString();
+  }
   static Future<bool> resetPassword(String token, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/resetPassword'),
