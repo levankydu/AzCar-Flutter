@@ -130,7 +130,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData, UserModel? user) 
                   Row(
                     children: [
                       Text(
-                        '\$${car.discount > 0 ? (car.price - (car.price * car.discount / 100)).toStringAsFixed(2) : car.price}',
+                        '${car.discount > 0 ? (car.price - (car.price * car.discount / 100)).toStringAsFixed(2) : car.price}',
                         style: GoogleFonts.poppins(
                           color: themeData.secondaryHeaderColor,
                           fontSize: size.width * 0.06,
@@ -138,7 +138,7 @@ Padding buildCar(CarModel car, Size size, ThemeData themeData, UserModel? user) 
                         ),
                       ),
                       Text(
-                        '/per day',
+                        ' VND/day',
                         style: GoogleFonts.poppins(
                           color: themeData.primaryColor.withOpacity(0.8),
                           fontSize: size.width * 0.03,
