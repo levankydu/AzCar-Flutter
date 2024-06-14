@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import '../constant_user_profile_screen.dart';
 import '../services/get_api_services.dart';
 import 'WithdrawPage.dart';
+import 'changePassword.dart';
 import 'login_register_page.dart';
 import 'package:date_format_field/date_format_field.dart';
 
@@ -218,7 +219,33 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     Radius.circular(10),
                   ),
                 ),
+                child: PopupMenuButton<String>(
+                  icon: Icon(
+                    CommunityMaterialIcons.cog,
+                    color: themeData.secondaryHeaderColor,
+                    size: 12,
+                  ),
+                  onSelected: (String value) {
+                    if (value == 'changePassword') {
+                      print(user!.email);
+                      Get.to((ChangePasswordPage(email: user!.email))); // Call changePassword function when selected
+                    }
+                  },
+                  itemBuilder:
+                      (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'changePassword',
+                      child: ListTile(
+                        leading: Icon(Icons.lock),
+                        title: Text('Change Password'),
+                      ),
+                    ),
+                    // Add more PopupMenuItems for other options
+                  ],
+                  // Add more options as needed
+                ),
               ),
+
             ),
           ),
         ],
@@ -318,7 +345,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ElevatedButton(
                               onPressed: _showTransactionDialog, // Reference to the method that shows the dialog
                               style: ElevatedButton.styleFrom(
-                                primary: themeData.secondaryHeaderColor, // Button color
+                                backgroundColor: themeData.secondaryHeaderColor, // Button color
                               ),
                               child: Text(
                                 'Transactions',

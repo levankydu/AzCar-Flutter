@@ -20,12 +20,12 @@ class CardBankDTO {
   factory CardBankDTO.fromJson(Map<String, dynamic> json) {
     return CardBankDTO(
       id: json['id'],
-      bankName: json['bankName'],
-      bankNumber: json['bankNumber'],
-      beneficiaryName: json['beneficiaryName'],
-      addressbank: json['addressbank'],
-      active: json['active'],
-      user: json['user'],
+      bankName: json['bankName'] ?? '',
+      bankNumber: json['bankNumber'] ?? '',
+      beneficiaryName: json['beneficiaryName'] ?? '',
+      addressbank: json['addressbank'] ?? '',
+      active: json['active'] ?? '',
+      user: json['user'] ?? '',
     );
   }
 

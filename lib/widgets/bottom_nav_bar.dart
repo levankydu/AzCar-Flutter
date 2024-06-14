@@ -1,8 +1,10 @@
 import 'package:az_car_flutter_app/page/my_plan.dart';
+import 'package:az_car_flutter_app/page/orderPage.dart';
 import 'package:az_car_flutter_app/page/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:unicons/unicons.dart';
+import '../page/home_page.dart';
 import 'bottom_nav_item.dart';
 import 'dart:ui';
 Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
@@ -21,41 +23,29 @@ Widget buildBottomNavBar(int currIndex, Size size, ThemeData themeData) {
     onTap: (value) {
       switch (value) {
         case 0:
-          print(value);
+          Get.to(()=>OrderPage());
           break;
         case 1:
           print(value);
+          Get.to(() => HomePage());
           break;
         case 2:
           print(value);
+          Get.to(()=>MyPlanScreen());
           break;
         case 3:
           print(value);
-          Get.to(()=>MyPlanScreen());
-          break;
-        case 4:
-          print(value);
           Get.to(()=>MyProfileScreen());
           break;
-
         default:
           break;
       }
     },
     items: [
-      buildBottomNavItem(UniconsLine.bell, themeData, size),
-      buildBottomNavItem(
-        UniconsLine.map_marker,
-        themeData,
-        size,
-      ),
-      buildBottomNavItem(UniconsLine.user, themeData, size),
+      buildBottomNavItem(UniconsLine.receipt, themeData, size),
+      buildBottomNavItem(UniconsLine.home, themeData, size),
       buildBottomNavItem(UniconsLine.car_sideview, themeData, size),
-      buildBottomNavItem(
-        UniconsLine.user_check,
-        themeData,
-        size,
-      ),
+      buildBottomNavItem(UniconsLine.user, themeData, size),
     ],
   );
 }

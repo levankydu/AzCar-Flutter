@@ -378,11 +378,10 @@ class _DepositPageState extends State<DepositPage> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: (_isAccepted && selectedBank != null) ? _handleDeposit : null,
-                  child: Text('Confirm Deposit'),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                    onSurface: Colors.grey,  // Color when disabled
+                    backgroundColor: Colors.green, disabledForegroundColor: Colors.grey.withOpacity(0.38), disabledBackgroundColor: Colors.grey.withOpacity(0.12),  // Color when disabled
                   ),
+                  child: Text('Confirm Deposit'),
                 ),
                 if (_isLoading) CircularProgressIndicator(),
                 Text(_message, style: TextStyle(color: Colors.red)),

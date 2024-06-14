@@ -158,7 +158,7 @@ class _WithdrawPageState extends State<WithdrawPage> {
                       onPressed: _showRegisterCardBankDialog,
                       child: Text('Create New Card Bank'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                     ),
                   ],
@@ -224,11 +224,10 @@ class _WithdrawPageState extends State<WithdrawPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: (_isAccepted) ? _handleWithdraw : null,
-              child: Text('Confirm Withdraw'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.green,
-                onSurface: Colors.grey,
+                backgroundColor: Colors.green, disabledForegroundColor: Colors.grey.withOpacity(0.38), disabledBackgroundColor: Colors.grey.withOpacity(0.12),
               ),
+              child: Text('Confirm Withdraw'),
             ),
             Text(_message, style: TextStyle(color: Colors.red)),
           ],

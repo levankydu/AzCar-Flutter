@@ -1,5 +1,4 @@
 import 'package:az_car_flutter_app/data/carModel.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:unicons/unicons.dart';
@@ -10,11 +9,11 @@ class CarDetailsWidget extends StatelessWidget {
   final ThemeData themeData;
 
   const CarDetailsWidget({
-    Key? key,
+    super.key,
     required this.car,
     required this.size,
     required this.themeData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +67,7 @@ class CarDetailsWidget extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '\$${(car.price - (car.price * car.discount / 100)).toStringAsFixed(2)}',
+              (car.price - (car.price * car.discount / 100)).toStringAsFixed(2),
               style: GoogleFonts.poppins(
                 color: themeData.primaryColor,
                 fontSize: size.width * 0.04,
@@ -76,7 +75,7 @@ class CarDetailsWidget extends StatelessWidget {
               ),
             ),
             Text(
-              '/per day',
+              ' VND/day',
               style: GoogleFonts.poppins(
                 color: themeData.primaryColor.withOpacity(0.8),
                 fontSize: size.width * 0.025,
@@ -113,27 +112,36 @@ class CarDetailsWidget extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    buildStat(
-                        UniconsLine.rocket,
-                        car.deliveryFee! > 0 ? '\$${car.deliveryFee}' : 'Free',
-                        'Deli Fee',
-                        size,
-                        themeData,
-                        null),
-                    buildStat(
-                        UniconsLine.car_wash,
-                        car.cleaningFee! > 0 ? '\$${car.cleaningFee}' : 'Free',
-                        'Clean Fee',
-                        size,
-                        themeData,
-                        null),
-                    buildStat(
-                        UniconsLine.sanitizer_alt,
-                        car.smellFee! > 0 ? '\$${car.smellFee}' : 'Free',
-                        'Smell Fee',
-                        size,
-                        themeData,
-                        null),
+                    SizedBox(
+                      height: size.height*0.17,
+                      child: buildStat(
+                          UniconsLine.rocket,
+                          car.deliveryFee! > 0 ? '${car.deliveryFee} VND' : 'Free',
+                          'Deli Fee',
+                          size,
+                          themeData,
+                          null),
+                    ),
+                    SizedBox(
+                      height: size.height*0.17,
+                      child: buildStat(
+                          UniconsLine.car_wash,
+                          car.cleaningFee! > 0 ? '${car.cleaningFee} VND' : 'Free',
+                          'Clean Fee',
+                          size,
+                          themeData,
+                          null),
+                    ),
+                    SizedBox(
+                      height: size.height*0.17,
+                      child: buildStat(
+                          UniconsLine.sanitizer_alt,
+                          car.smellFee! > 0 ? '${car.smellFee} VND' : 'Free',
+                          'Smell Fee',
+                          size,
+                          themeData,
+                          null),
+                    ),
                   ],
                 ),
               ),
@@ -189,11 +197,11 @@ class CarDetailsWidget extends StatelessWidget {
                           size: size.height * 0.05,
                         ),
                         Text(
-                          '\$200 Insurance bundle included',
+                          '200.000 VND  Insurance bundle included',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor,
-                            fontSize: size.width * 0.045,
+                            fontSize: size.width * 0.035,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -202,7 +210,7 @@ class CarDetailsWidget extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor.withOpacity(0.6),
-                            fontSize: size.width * 0.03,
+                            fontSize: size.width * 0.025,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -211,7 +219,7 @@ class CarDetailsWidget extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: themeData.primaryColor.withOpacity(0.6),
-                            fontSize: size.width * 0.03,
+                            fontSize: size.width * 0.025,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

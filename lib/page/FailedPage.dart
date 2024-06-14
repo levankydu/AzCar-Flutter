@@ -36,7 +36,7 @@ class FailedPage extends StatelessWidget {
               },
               child: Text('Try Again'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.red, // Style the button with a red color
+                backgroundColor: Colors.red, // Style the button with a red color
               ),
             )
           ],

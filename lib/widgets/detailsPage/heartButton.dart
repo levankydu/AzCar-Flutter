@@ -22,7 +22,7 @@ class _HeartButtonState extends State<HeartButton> {
     return Align(
       alignment: Alignment.centerRight,
       child: Padding(
-        padding: const EdgeInsets.only(left: 210.0),
+        padding: const EdgeInsets.only(left: 190.0),
         child: IconButton(
           icon: Icon(
             widget.car.isFavorite == true

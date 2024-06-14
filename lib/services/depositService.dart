@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:az_car_flutter_app/data/WithdrawDTO.dart';
+import 'package:az_car_flutter_app/services/get_api_services.dart';
 import 'package:http/http.dart' as http;
 
 import '../data/DepositDTO.dart';
 
 class DepositService {
-  static const String baseUrl = 'http://192.168.56.1:8081';
+  static const String baseUrl = ApiService.baseUrl;
 
   // Function to create a deposit
   static Future<bool> createDeposit(String referenceID, DepositDTO paymentDetails) async {
