@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 import 'package:flutter/services.dart'; // Import for clipboard
-
+import 'package:intl/intl.dart';
 
 
 // Assuming you have these models and services set up
@@ -58,6 +58,11 @@ class _DepositPageState extends State<DepositPage> {
   void fetchCardBankAdminList() async {
     cardBanks = await CardBankService.getListCardBank();
     setState(() {});  // Refresh the UI after data is fetched
+  }
+
+  String formatCurrency(int amount) {
+    final NumberFormat currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+    return currencyFormat.format(amount);
   }
   void _showBankDetails(CardBankDTO bank) {
     showDialog(
@@ -226,7 +231,7 @@ class _DepositPageState extends State<DepositPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Text('Balance: ${widget.balance  ?? '0'} USD',
+            Text('Balance: ${widget.balance  ?? '0'} VND',
 
         style: TextStyle(
           color: Color(0xFF7e3ccf), // Hex color code for Flutter
@@ -326,19 +331,19 @@ class _DepositPageState extends State<DepositPage> {
             TextField(
               controller: amountController,
               decoration: InputDecoration(
-                labelText: 'Enter Amount (USD)',
+                labelText: 'Enter Amount (VND)',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             Wrap(
-              children: [500.0, 1000.0, 2000.0].map((amount) => ElevatedButton(
+              children:[ (50000),  (100000), (200000)].map((amount) => ElevatedButton(
                 onPressed: () {
                   setState(() {
                     amountController.text = amount.toString();
                   });
                 },
-                child: Text('\$$amount'),
+                child: Text('VND $amount'),
               )).toList(),
             ),
             Column(
@@ -396,9 +401,9 @@ class _DepositPageState extends State<DepositPage> {
   }
 
   void _handleDeposit() async {
-    final double amount = double.tryParse(amountController.text) ?? 0;
-    if (amount <= 10 || amount > 20000) {
-      Get.snackbar('Error', 'Please enter a valid amount greater than USD 10 and less than or equal to USD 20,000');
+    final double amount = double.tryParse(amountController.text.replaceAll(',', '').replaceAll('.', '')) ?? 0;
+    if (amount <= 10000 || amount > 50000000) {
+      Get.snackbar('Error', 'Please enter a valid amount greater than VND 10,000 and less than or equal to VND 50,000,000');
       return;
     }
     var permission = await TransactionLimiter.checkTransactionPermission();

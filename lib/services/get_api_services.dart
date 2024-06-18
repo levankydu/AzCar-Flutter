@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:az_car_flutter_app/data/carModel.dart';
 import 'package:az_car_flutter_app/data/user_model.dart';
-import 'package:http/http.dart' as http;
 
+import 'package:az_car_flutter_app/data/ReviewModel.dart';
+import 'package:http/http.dart' as http;
+import '../data/CommentModel.dart';
 import '../data/OrderDetails.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.1.14:8081';
-
+// 'http://192.168.1.9:8081'
+  static const String baseUrl = 'http://192.168.1.5:8081';
 
   static Future<List<UserModel>> fetchPosts() async {
     final response = await http.get(Uri.parse('$baseUrl/api/auth/getUsers'));
@@ -235,6 +237,33 @@ class ApiService {
       return true;
     } else {
       return false;
+    }
+  }
+
+
+
+
+
+  //Review " 16/6
+  static Future<List<CommentModel>> getCommentsByCarId(String carId) async {
+    final response = await http.get(Uri.parse('$baseUrl/comments/car/$carId'));
+
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((comment) => CommentModel.fromJson(comment)).toList();
+    } else {
+      throw Exception('Failed to load comments');
+    }
+  }  //Review " 15/6
+  static Future<List<ReviewModel>?> getReviewsByCarId(String carId) async {
+    final response = await http.get(Uri.parse('$baseUrl/reviews/car/$carId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      List<ReviewModel> reviews = data.map((review) => ReviewModel.fromJson(review)).toList();
+      return reviews;
+    } else {
+      throw Exception('Failed to load reviews');
     }
   }
 }
