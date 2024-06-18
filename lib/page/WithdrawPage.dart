@@ -119,7 +119,7 @@ class _WithdrawPageState extends State<WithdrawPage> {
           withdrawController.text = withdraw.toString();
         });
       },
-      child: Text('\$$withdraw'),
+      child: Text('\VND$withdraw'),
     );
   }
 
@@ -135,7 +135,7 @@ class _WithdrawPageState extends State<WithdrawPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Balance: ${widget.balance?.toStringAsFixed(2) ?? "0"} USD',
+              'Balance: ${widget.balance?.toStringAsFixed(2) ?? "0"} VND',
               style: TextStyle(
                 color: Color(0xFF7e3ccf),
                 fontWeight: FontWeight.bold,
@@ -190,13 +190,13 @@ class _WithdrawPageState extends State<WithdrawPage> {
             TextField(
               controller: withdrawController,
               decoration: InputDecoration(
-                labelText: 'Enter withdraw (USD)',
+                labelText: 'Enter withdraw (VND)',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             Wrap(
-              children: [500.0, 1000.0, 2000.0].map(_withdrawButton).toList(),
+              children: [50000.0, 100000.0, 200000.0].map(_withdrawButton).toList(),
             ),
             GestureDetector(
               onTap: _showTermsDialog,
@@ -252,9 +252,9 @@ class _WithdrawPageState extends State<WithdrawPage> {
       return;
     }
 
-    if (withdraw < 10 || withdraw > 20000) {
+    if (withdraw < 50000 || withdraw > 50000000) {
       Get.snackbar('Error',
-          'Please enter a valid withdraw amount greater than USD 10 and less than or equal to USD 20,000');
+          'Please enter a valid withdraw amount greater than VND 50,000 and less than or equal to VND 50,000,000');
       return;
     }
 
