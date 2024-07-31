@@ -35,14 +35,25 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
     try {
       bool loginSuccess = await ApiService.loginUser(usernameOrEmail, password);
       if (loginSuccess) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('emailLogin', emailController.text);
-        emailController.clear();
-        passwordController.clear();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MyProfileScreen()),
-        );
+
+        var model = await ApiService.getUserByEmail(emailController.text);
+        if(model!=null && model.enabled==false){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Your Account is Blocked by Administrator. Please contact to AzCar Admin.'),
+            ),
+          );
+        }else{
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('emailLogin', emailController.text);
+
+          emailController.clear();
+          passwordController.clear();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MyProfileScreen()),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

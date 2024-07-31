@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:az_car_flutter_app/data/CarModelType.dart';
 import 'package:az_car_flutter_app/data/DIstrict.dart';
 import 'package:az_car_flutter_app/data/Province.dart';
@@ -7,7 +8,6 @@ import 'package:az_car_flutter_app/data/Ward.dart';
 import 'package:az_car_flutter_app/services/get_api_services.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
@@ -70,6 +70,7 @@ class _CarRegisterState extends State<CarRegister> {
   String? _directoryPath;
   String? _extension;
   bool _isLoading = false;
+  bool _isLoadingUser = false;
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
@@ -159,13 +160,11 @@ class _CarRegisterState extends State<CarRegister> {
       if (model != null) {
         setState(() {
           user = model;
+          _isLoadingUser = true;
         });
+        await Future.delayed(Duration(seconds: 3));
         setState(() {
-          _isLoading = true;
-        });
-        await Future.delayed(Duration(seconds: 2));
-        setState(() {
-          _isLoading = false;
+          _isLoadingUser = false;
         });
       }
       return null;
@@ -641,821 +640,908 @@ class _CarRegisterState extends State<CarRegister> {
                 ],
               ),
             )
-          : user == null
-              ? Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.02,
-                        left: size.width * 0.06,
+          : _isLoadingUser
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      LoadingAnimationWidget.horizontalRotatingDots(
+                        color: Theme.of(context).secondaryHeaderColor,
+                        size: 50,
                       ),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          'Welcome to AzCar, ',
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.06,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      SizedBox(
+                          height: 20), // Khoảng cách giữa animation và text
+                      Text(
+                        'Loading Data',
+                        style: TextStyle(fontSize: 18),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.01,
-                        left: size.width * 0.06,
-                      ),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          'Click SigIn to continue',
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.poppins(
-                            color: themeData.secondaryHeaderColor,
-                            fontSize: size.width * 0.035,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.03,
-                        left: size.width * 0.04,
-                        bottom: size.height * 0.025,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    ],
+                  ),
+                )
+              : user == null
+                  ? Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(top: 30),
-                          child: AnimatedButton(
-                            height: 70,
-                            width: MediaQuery.of(context).size.width / 2,
-                            text: 'Log in',
-                            isReverse: true,
-                            selectedTextColor: Colors.black,
-                            transitionType: TransitionType.LEFT_TO_RIGHT,
-                            backgroundColor: themeData.secondaryHeaderColor,
-                            borderColor: themeData.secondaryHeaderColor,
-                            borderRadius: 50,
-                            borderWidth: 2,
-                            onPress: () {
-                              Get.to(() => LoginSignupScreen());
-                            },
+                          padding: EdgeInsets.only(
+                            top: size.height * 0.02,
+                            left: size.width * 0.06,
                           ),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'Welcome to AzCar, ',
+                              textAlign: TextAlign.left,
+                              style: GoogleFonts.poppins(
+                                color: themeData.secondaryHeaderColor,
+                                fontSize: size.width * 0.06,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: size.height * 0.01,
+                            left: size.width * 0.06,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'Click SigIn to continue',
+                              textAlign: TextAlign.left,
+                              style: GoogleFonts.poppins(
+                                color: themeData.secondaryHeaderColor,
+                                fontSize: size.width * 0.035,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: size.height * 0.03,
+                            left: size.width * 0.04,
+                            bottom: size.height * 0.025,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 30),
+                              child: AnimatedButton(
+                                height: 70,
+                                width: MediaQuery.of(context).size.width / 2,
+                                text: 'Log in',
+                                isReverse: true,
+                                selectedTextColor: Colors.black,
+                                transitionType: TransitionType.LEFT_TO_RIGHT,
+                                backgroundColor: themeData.secondaryHeaderColor,
+                                borderColor: themeData.secondaryHeaderColor,
+                                borderRadius: 50,
+                                borderWidth: 2,
+                                onPress: () {
+                                  Get.to(() => LoginSignupScreen());
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
-                )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: licenseController,
-                          decoration: InputDecoration(
-                            labelText: 'License Plate',
-                            hintText: 'Example: 12A-12345',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'License Plate cannot be empty';
-                            }
-                            RegExp platePattern = RegExp(r'^\d{2}[A-Z]-\d{5}$');
-                            if (!platePattern.hasMatch(value)) {
-                              return 'Invalid License Plate format';
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 20),
-                        DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Brand must be select';
-                            }
-                            return null;
-                          },
-                          value:
-                              selectedBrand.isNotEmpty ? selectedBrand : null,
-                          hint: Text('Brand'),
-                          onChanged: (String? newValue) async {
-                            if (newValue != null) {
-                              final carCates =
-                                  await fetchCategoryData(newValue);
-                              setState(() {
-                                selectedBrand = newValue;
-                                carCategories = carCates;
-                                selectedCategory = '';
-                              });
-                            }
-                          },
-                          items: carBrands.map<DropdownMenuItem<String>>(
-                              (String brandName) {
-                            return DropdownMenuItem<String>(
-                              value: brandName,
-                              child: Text(brandName),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 20),
-                        if (carCategories.isNotEmpty)
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Category must be select';
-                              }
-                              return null;
-                            },
-                            value: selectedCategory.isNotEmpty
-                                ? selectedCategory
-                                : null,
-                            hint: Text('Category'),
-                            onChanged: (String? newValue) async {
-                              final carModels = await fetchCarSampleModelData(
-                                  selectedBrand, newValue!);
-                              setState(() {
-                                selectedCategory = newValue;
-                                carSampleModels = carModels;
-                                selectedCarSampleModel = '';
-                              });
-                            },
-                            items: carCategories.map<DropdownMenuItem<String>>(
-                                (String brandName) {
-                              return DropdownMenuItem<String>(
-                                value: brandName,
-                                child: Text(brandName),
-                              );
-                            }).toList(),
-                          ),
-                        SizedBox(height: 20),
-                        if (carSampleModels.isNotEmpty)
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Model must be select';
-                              }
-                              return null;
-                            },
-                            value: selectedCarSampleModel.isNotEmpty
-                                ? selectedCarSampleModel
-                                : null,
-                            hint: Text('Model'),
-                            onChanged: (String? newValue) async {
-                              final carYears = await fetchCarYearData(
-                                  selectedBrand, selectedCategory, newValue!);
-                              setState(() {
-                                selectedCarSampleModel = newValue;
-                                this.carYears = carYears;
-                                selectedYear = '';
-                              });
-                            },
-                            items: carSampleModels
-                                .map<DropdownMenuItem<String>>(
-                                    (String brandName) {
-                              return DropdownMenuItem<String>(
-                                value: brandName,
-                                child: Text(brandName),
-                              );
-                            }).toList(),
-                          ),
-                        SizedBox(height: 20),
-                        if (carYears.isNotEmpty)
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Year must be select';
-                              }
-                              return null;
-                            },
-                            value:
-                                selectedYear.isNotEmpty ? selectedYear : null,
-                            hint: Text('Year'),
-                            onChanged: (String? newValue) async {
-                              setState(() {
-                                selectedYear = newValue!;
-                              });
-                            },
-                            items: carYears.map<DropdownMenuItem<String>>(
-                                (String brandName) {
-                              return DropdownMenuItem<String>(
-                                value: brandName,
-                                child: Text(brandName),
-                              );
-                            }).toList(),
-                          ),
-                        TextFormField(
-                          controller: seatQty,
-                          decoration: InputDecoration(
-                            labelText: 'Seat Quantity',
-                            hintText: 'Enter a number between 2 and 8',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Seat quantity cannot be empty';
-                            }
-                            RegExp numberPattern = RegExp(r'^[2-8]$');
-                            if (!numberPattern.hasMatch(value)) {
-                              return 'Please enter a number between 2 and 8';
-                            }
-                            return null;
-                          },
-                        ),
-                        DropdownButtonFormField<String>(
-                          value: fuelType[0],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedFuelType = newValue!;
-                            });
-                          },
-                          items: fuelType.map((type) {
-                            return DropdownMenuItem<String>(
-                              value: type,
-                              child: Text(type),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(labelText: 'Fuel Type'),
-                        ),
-                        TextFormField(
-                          controller: description,
-                          decoration: InputDecoration(
-                            labelText: 'Description',
-                            hintText: 'Enter description',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Description cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: defaultPrice,
-                          decoration: InputDecoration(
-                              labelText: 'Default Price',
-                              hintText: hintPrice(selectedCategory)),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Default Price cannot be empty';
-                            } else {
-                              return checkPrice(selectedCategory, value);
-                            }
-                            // double? price = double.tryParse(value);
-                            //
-                            // if (price == null || price < 0) {
-                            //   return 'Please enter a price greater than 0';
-                            // }
-                            // return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: discount,
-                          decoration: InputDecoration(
-                            labelText: 'Discount',
-                            hintText: 'Enter a discount between 0 and 99',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Default Discount cannot be empty';
-                            }
-                            int? discountValue = int.tryParse(value);
-
-                            if (discountValue == null ||
-                                discountValue < 0 ||
-                                discountValue > 99) {
-                              return 'Please enter a discount between 0 and 99';
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 20),
-                        DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Province must be selected';
-                            }
-                            return null;
-                          },
-                          value: selectedProvince.isNotEmpty
-                              ? selectedProvince
-                              : null,
-                          hint: Text('Province'),
-                          onChanged: (String? newValue) async {
-                            if (newValue != null) {
-                              final districts =
-                                  await fetchDistrictData(newValue);
-                              setState(() {
-                                selectedProvince = newValue;
-                                this.districts = districts;
-                                selectedDistrict = '';
-                              });
-                            }
-                          },
-                          items: provinces.map((Province province) {
-                            return DropdownMenuItem<String>(
-                              value: province.code,
-                              child: Text(province.fullName),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 20),
-                        if (districts.isNotEmpty)
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'District must be selected';
-                              }
-                              return null;
-                            },
-                            value: selectedDistrict.isNotEmpty
-                                ? selectedDistrict
-                                : null,
-                            hint: Text('District'),
-                            onChanged: (String? newValue) async {
-                              final wards = await fetchWardData(newValue!);
-                              setState(() {
-                                selectedDistrict = newValue;
-                                this.wards = wards;
-                                selectedWard = '';
-                              });
-                            },
-                            items: districts.map((District district) {
-                              return DropdownMenuItem<String>(
-                                value: district.code,
-                                child: Text(district.fullName),
-                              );
-                            }).toList(),
-                          ),
-                        SizedBox(height: 20),
-                        if (wards.isNotEmpty)
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Ward must be selected';
-                              }
-                              return null;
-                            },
-                            value:
-                                selectedWard.isNotEmpty ? selectedWard : null,
-                            hint: Text('Ward'),
-                            onChanged: (String? newValue) {
-                              selectedWard = newValue!;
-                            },
-                            items: wards.map((Ward ward) {
-                              return DropdownMenuItem<String>(
-                                value: ward.code,
-                                child: Text(ward.fullName),
-                              );
-                            }).toList(),
-                          ),
-                        TextFormField(
-                          controller: houseNo,
-                          decoration: InputDecoration(labelText: 'House No'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'House No cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: street,
-                          decoration: InputDecoration(labelText: 'Street Name'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Street Name cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
-                        DropdownButtonFormField<String>(
-                          value: '0',
-                          decoration: InputDecoration(
-                            labelText: 'Delivery Fee',
-                            hintText: 'Select a percentage',
-                          ),
-                          items: ['0', '10', '20', '30', '40', '50']
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                  '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            deliveryFee.text = newValue!;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a percentage';
-                            }
-                            return null;
-                          },
-                        ),
-                        DropdownButtonFormField<String>(
-                          value: '0',
-                          decoration: InputDecoration(
-                            labelText: 'Cleaning Fee',
-                            hintText: 'Select a percentage',
-                          ),
-                          items: ['0', '10', '20', '30', '40', '50']
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                  '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            cleaningFee.text = newValue!;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a percentage';
-                            }
-                            return null;
-                          },
-                        ),
-                        DropdownButtonFormField<String>(
-                          value: '0',
-                          decoration: InputDecoration(
-                            labelText: 'Decoration Fee',
-                            hintText: 'Select a percentage',
-                          ),
-                          items: ['0', '10', '20', '30', '40', '50']
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                  '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            decorationFee.text = newValue!;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a percentage';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: rules,
-                          decoration: InputDecoration(labelText: 'Rules'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Rules cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 20),
-                        for (var item in serviceValues.entries) ...{
-                          CheckboxListTile(
-                            title: Text(item.key),
-                            value: serviceValues[item.key] ?? false,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                serviceValues[item.key] = value ?? false;
-                              });
-                            },
-                            controlAffinity: ListTileControlAffinity.leading,
-                          ),
-                        },
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-                          child: SingleChildScrollView(
-                            padding:
-                                const EdgeInsets.only(left: 15.0, right: 15.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 20.0, bottom: 20.0),
-                                  child: Wrap(
-                                    spacing: 10.0,
-                                    runSpacing: 10.0,
-                                    children: <Widget>[
-                                      SizedBox(
-                                        width: 200,
-                                        child: FloatingActionButton.extended(
-                                            onPressed: () => _pickFiles(),
-                                            label: Text(_multiPick
-                                                ? 'Choose  Car\'s Image'
-                                                : 'Choose  Car\'s Image'),
-                                            icon:
-                                                const Icon(Icons.description)),
-                                      ),
-                                      SizedBox(
-                                        width: 200,
-                                        child: FloatingActionButton.extended(
-                                          onPressed: () => _clearCachedFiles(),
-                                          label:
-                                              const Text('Clear all Images '),
-                                          icon:
-                                              const Icon(Icons.delete_forever),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Divider(),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                Text(
-                                  'Review Images Chosen',
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                // Builder(
-                                //   builder: (BuildContext context) => _isLoading
-                                //       ? Row(
-                                //           children: [
-                                //             Expanded(
-                                //               child: Center(
-                                //                 child: Padding(
-                                //                   padding: const EdgeInsets
-                                //                       .symmetric(
-                                //                     vertical: 40.0,
-                                //                   ),
-                                //                   child:
-                                //                       const CircularProgressIndicator(),
-                                //                 ),
-                                //               ),
-                                //             ),
-                                //           ],
-                                //         )
-                                //       : _userAborted
-                                //           ? Row(
-                                //               children: [
-                                //                 Expanded(
-                                //                   child: Center(
-                                //                     child: SizedBox(
-                                //                       width: 300,
-                                //                       child: ListTile(
-                                //                         leading: Icon(
-                                //                           Icons.error_outline,
-                                //                         ),
-                                //                         contentPadding:
-                                //                             EdgeInsets
-                                //                                 .symmetric(
-                                //                                     vertical:
-                                //                                         40.0),
-                                //                         title: const Text(
-                                //                           'User has aborted the dialog',
-                                //                         ),
-                                //                       ),
-                                //                     ),
-                                //                   ),
-                                //                 ),
-                                //               ],
-                                //             )
-                                //           : _directoryPath != null
-                                //               ? ListTile(
-                                //                   title: const Text(
-                                //                       'Directory path'),
-                                //                   subtitle:
-                                //                       Text(_directoryPath!),
-                                //                 )
-                                //               : _paths != null
-                                //                   ? Container(
-                                //                       padding: const EdgeInsets
-                                //                           .symmetric(
-                                //                         vertical: 20.0,
-                                //                       ),
-                                //                       height:
-                                //                           MediaQuery.of(context)
-                                //                                   .size
-                                //                                   .height *
-                                //                               0.50,
-                                //                       child: Scrollbar(
-                                //                           child: ListView
-                                //                               .separated(
-                                //                         itemCount: _paths !=
-                                //                                     null &&
-                                //                                 _paths!
-                                //                                     .isNotEmpty
-                                //                             ? _paths!.length
-                                //                             : 1,
-                                //                         itemBuilder:
-                                //                             (BuildContext
-                                //                                     context,
-                                //                                 int index) {
-                                //                           final bool
-                                //                               isMultiPath =
-                                //                               _paths != null &&
-                                //                                   _paths!
-                                //                                       .isNotEmpty;
-                                //                           final String name = 'File $index: ${isMultiPath
-                                //                                   ? _paths!
-                                //                                           .map((e) => e
-                                //                                               .name)
-                                //                                           .toList()[
-                                //                                       index]
-                                //                                   : _fileName ??
-                                //                                       '...'}';
-                                //                           final path = kIsWeb
-                                //                               ? null
-                                //                               : _paths!
-                                //                                   .map((e) =>
-                                //                                       e.path)
-                                //                                   .toList()[
-                                //                                       index]
-                                //                                   .toString();
-                                //
-                                //                           return ListTile(
-                                //                             title: Text(
-                                //                               name,
-                                //                             ),
-                                //                             subtitle: Text(
-                                //                                 path ?? ''),
-                                //                           );
-                                //                         },
-                                //                         separatorBuilder:
-                                //                             (BuildContext
-                                //                                         context,
-                                //                                     int index) =>
-                                //                                 const Divider(),
-                                //                       )),
-                                //                     )
-                                //                   : _saveAsFileName != null
-                                //                       ? ListTile(
-                                //                           title: const Text(
-                                //                               'Save file'),
-                                //                           subtitle: Text(
-                                //                               _saveAsFileName!),
-                                //                         )
-                                //                       : const SizedBox(),
-                                // ),
-                          Builder(
-                            builder: (BuildContext context) => _isLoading
-                                ? Row(
-                              children: [
-                                Expanded(
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 40.0,
-                                      ),
-                                      child: const CircularProgressIndicator(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                                : _userAborted
-                                ? Row(
-                              children: [
-                                Expanded(
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 300,
-                                      child: ListTile(
-                                        leading: Icon(
-                                          Icons.error_outline,
-                                        ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: 40.0,
-                                        ),
-                                        title: const Text(
-                                          'User has aborted the dialog',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                                : _directoryPath != null
-                                ? ListTile(
-                              title: const Text('Directory path'),
-                              subtitle: Text(_directoryPath!),
-                            )
-                                : _paths != null
-                                ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 20.0,
+                    )
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              controller: licenseController,
+                              decoration: InputDecoration(
+                                labelText: 'License Plate',
+                                hintText: 'Example: 12A-12345',
                               ),
-                              height: MediaQuery.of(context).size.height * 0.50,
-                              child: Scrollbar(
-                                child: ListView.separated(
-                                  itemCount: _paths != null && _paths!.isNotEmpty
-                                      ? _paths!.length
-                                      : 1,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    if (_paths == null || _paths!.isEmpty) {
-                                      return Center(child: Text('No files selected'));
-                                    }
-
-                                    final String fileName = _paths![index].name;
-                                    final String filePath = _paths![index].path ?? '';
-
-                                    // Kiểm tra nếu đường dẫn là null (đối với web)
-                                    if (filePath.isEmpty) {
-                                      return ListTile(
-                                        title: Text('File $index: $fileName'),
-                                        subtitle: Text('No local path'),
-                                      );
-                                    }
-
-                                    // Hiển thị hình ảnh nếu đường dẫn hợp lệ
-                                    if (fileName.toLowerCase().endsWith('.jpg') ||
-                                        fileName.toLowerCase().endsWith('.jpeg') ||
-                                        fileName.toLowerCase().endsWith('.png')) {
-                                      return ListTile(
-                                        title: Text('Image $index: $fileName'),
-                                        subtitle: Image.file(File(filePath)),
-                                      );
-                                    }
-
-                                    // Hiển thị thông tin tệp cho các tệp khác
-                                    return ListTile(
-                                      title: Text('File $index: $fileName'),
-                                      subtitle: Text(filePath),
-                                    );
-                                  },
-                                  separatorBuilder: (BuildContext context, int index) =>
-                                  const Divider(),
-                                ),
-                              ),
-                            )
-                                : _saveAsFileName != null
-                                ? ListTile(
-                              title: const Text('Save file'),
-                              subtitle: Text(_saveAsFileName!),
-                            )
-                                : const SizedBox(),
-                          ),
-
-                          SizedBox(
-                                  height: 40.0,
-                                ),
-                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'License Plate cannot be empty';
+                                }
+                                RegExp platePattern =
+                                    RegExp(r'^\d{2}[A-Z]-\d{5}$');
+                                if (!platePattern.hasMatch(value)) {
+                                  return 'Invalid License Plate format';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                        ),
-                        Center(
-                          child: FloatingActionButton.extended(
-                            label: const Text('Submit this Car'),
-                            icon: const Icon(Icons.upgrade_outlined),
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                try {
-                                  _sendData();
-                                } finally {
+                            SizedBox(height: 20),
+                            DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Brand must be select';
+                                }
+                                return null;
+                              },
+                              value: selectedBrand.isNotEmpty
+                                  ? selectedBrand
+                                  : null,
+                              hint: Text('Brand'),
+                              onChanged: (String? newValue) async {
+                                if (newValue != null) {
+                                  final carCates =
+                                      await fetchCategoryData(newValue);
                                   setState(() {
-                                    isLoading = false;
+                                    selectedBrand = newValue;
+                                    carCategories = carCates;
+                                    selectedCategory = '';
                                   });
                                 }
-                              }
+                              },
+                              items: carBrands.map<DropdownMenuItem<String>>(
+                                  (String brandName) {
+                                return DropdownMenuItem<String>(
+                                  value: brandName,
+                                  child: Text(brandName),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(height: 20),
+                            if (carCategories.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Category must be select';
+                                  }
+                                  return null;
+                                },
+                                value: selectedCategory.isNotEmpty
+                                    ? selectedCategory
+                                    : null,
+                                hint: Text('Category'),
+                                onChanged: (String? newValue) async {
+                                  final carModels =
+                                      await fetchCarSampleModelData(
+                                          selectedBrand, newValue!);
+                                  setState(() {
+                                    selectedCategory = newValue;
+                                    carSampleModels = carModels;
+                                    selectedCarSampleModel = '';
+                                  });
+                                },
+                                items: carCategories
+                                    .map<DropdownMenuItem<String>>(
+                                        (String brandName) {
+                                  return DropdownMenuItem<String>(
+                                    value: brandName,
+                                    child: Text(brandName),
+                                  );
+                                }).toList(),
+                              ),
+                            SizedBox(height: 20),
+                            if (carSampleModels.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Model must be select';
+                                  }
+                                  return null;
+                                },
+                                value: selectedCarSampleModel.isNotEmpty
+                                    ? selectedCarSampleModel
+                                    : null,
+                                hint: Text('Model'),
+                                onChanged: (String? newValue) async {
+                                  final carYears = await fetchCarYearData(
+                                      selectedBrand,
+                                      selectedCategory,
+                                      newValue!);
+                                  setState(() {
+                                    selectedCarSampleModel = newValue;
+                                    this.carYears = carYears;
+                                    selectedYear = '';
+                                  });
+                                },
+                                items: carSampleModels
+                                    .map<DropdownMenuItem<String>>(
+                                        (String brandName) {
+                                  return DropdownMenuItem<String>(
+                                    value: brandName,
+                                    child: Text(brandName),
+                                  );
+                                }).toList(),
+                              ),
+                            SizedBox(height: 20),
+                            if (carYears.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Year must be select';
+                                  }
+                                  return null;
+                                },
+                                value: selectedYear.isNotEmpty
+                                    ? selectedYear
+                                    : null,
+                                hint: Text('Year'),
+                                onChanged: (String? newValue) async {
+                                  setState(() {
+                                    selectedYear = newValue!;
+                                  });
+                                },
+                                items: carYears.map<DropdownMenuItem<String>>(
+                                    (String brandName) {
+                                  return DropdownMenuItem<String>(
+                                    value: brandName,
+                                    child: Text(brandName),
+                                  );
+                                }).toList(),
+                              ),
+                            TextFormField(
+                              controller: seatQty,
+                              decoration: InputDecoration(
+                                labelText: 'Seat Quantity',
+                                hintText: 'Enter a number between 2 and 8',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Seat quantity cannot be empty';
+                                }
+                                RegExp numberPattern = RegExp(r'^[2-8]$');
+                                if (!numberPattern.hasMatch(value)) {
+                                  return 'Please enter a number between 2 and 8';
+                                }
+                                return null;
+                              },
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: fuelType[0],
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedFuelType = newValue!;
+                                });
+                              },
+                              items: fuelType.map((type) {
+                                return DropdownMenuItem<String>(
+                                  value: type,
+                                  child: Text(type),
+                                );
+                              }).toList(),
+                              decoration:
+                                  InputDecoration(labelText: 'Fuel Type'),
+                            ),
+                            TextFormField(
+                              controller: description,
+                              decoration: InputDecoration(
+                                labelText: 'Description',
+                                hintText: 'Enter description',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Description cannot be empty';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: defaultPrice,
+                              decoration: InputDecoration(
+                                  labelText: 'Default Price',
+                                  hintText: hintPrice(selectedCategory)),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Default Price cannot be empty';
+                                } else {
+                                  return checkPrice(selectedCategory, value);
+                                }
+                                // double? price = double.tryParse(value);
+                                //
+                                // if (price == null || price < 0) {
+                                //   return 'Please enter a price greater than 0';
+                                // }
+                                // return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: discount,
+                              decoration: InputDecoration(
+                                labelText: 'Discount',
+                                hintText: 'Enter a discount between 0 and 99',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Default Discount cannot be empty';
+                                }
+                                int? discountValue = int.tryParse(value);
+
+                                if (discountValue == null ||
+                                    discountValue < 0 ||
+                                    discountValue > 99) {
+                                  return 'Please enter a discount between 0 and 99';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 20),
+                            DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Province must be selected';
+                                }
+                                return null;
+                              },
+                              value: selectedProvince.isNotEmpty
+                                  ? selectedProvince
+                                  : null,
+                              hint: Text('Province'),
+                              onChanged: (String? newValue) async {
+                                if (newValue != null) {
+                                  final districts =
+                                      await fetchDistrictData(newValue);
+                                  setState(() {
+                                    selectedProvince = newValue;
+                                    this.districts = districts;
+                                    selectedDistrict = '';
+                                  });
+                                }
+                              },
+                              items: provinces.map((Province province) {
+                                return DropdownMenuItem<String>(
+                                  value: province.code,
+                                  child: Text(province.fullName),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(height: 20),
+                            if (districts.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'District must be selected';
+                                  }
+                                  return null;
+                                },
+                                value: selectedDistrict.isNotEmpty
+                                    ? selectedDistrict
+                                    : null,
+                                hint: Text('District'),
+                                onChanged: (String? newValue) async {
+                                  final wards = await fetchWardData(newValue!);
+                                  setState(() {
+                                    selectedDistrict = newValue;
+                                    this.wards = wards;
+                                    selectedWard = '';
+                                  });
+                                },
+                                items: districts.map((District district) {
+                                  return DropdownMenuItem<String>(
+                                    value: district.code,
+                                    child: Text(district.fullName),
+                                  );
+                                }).toList(),
+                              ),
+                            SizedBox(height: 20),
+                            if (wards.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Ward must be selected';
+                                  }
+                                  return null;
+                                },
+                                value: selectedWard.isNotEmpty
+                                    ? selectedWard
+                                    : null,
+                                hint: Text('Ward'),
+                                onChanged: (String? newValue) {
+                                  selectedWard = newValue!;
+                                },
+                                items: wards.map((Ward ward) {
+                                  return DropdownMenuItem<String>(
+                                    value: ward.code,
+                                    child: Text(ward.fullName),
+                                  );
+                                }).toList(),
+                              ),
+                            TextFormField(
+                              controller: houseNo,
+                              decoration:
+                                  InputDecoration(labelText: 'House No'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'House No cannot be empty';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: street,
+                              decoration:
+                                  InputDecoration(labelText: 'Street Name'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Street Name cannot be empty';
+                                }
+                                return null;
+                              },
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: '0',
+                              decoration: InputDecoration(
+                                labelText: 'Delivery Fee',
+                                hintText: 'Select a percentage',
+                              ),
+                              items: ['0', '10', '20', '30', '40', '50']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                      '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                deliveryFee.text = newValue!;
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select a percentage';
+                                }
+                                return null;
+                              },
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: '0',
+                              decoration: InputDecoration(
+                                labelText: 'Cleaning Fee',
+                                hintText: 'Select a percentage',
+                              ),
+                              items: ['0', '10', '20', '30', '40', '50']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                      '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                cleaningFee.text = newValue!;
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select a percentage';
+                                }
+                                return null;
+                              },
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: '0',
+                              decoration: InputDecoration(
+                                labelText: 'Decoration Fee',
+                                hintText: 'Select a percentage',
+                              ),
+                              items: ['0', '10', '20', '30', '40', '50']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                      '$value%: ${double.parse(value) * double.parse(defaultPrice.text != '' ? defaultPrice.text : '0') / 100} VND'), // Hiển thị giá trị kèm dấu %
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                decorationFee.text = newValue!;
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select a percentage';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: rules,
+                              decoration: InputDecoration(labelText: 'Rules'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Rules cannot be empty';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 20),
+                            for (var item in serviceValues.entries) ...{
+                              CheckboxListTile(
+                                title: Text(item.key),
+                                value: serviceValues[item.key] ?? false,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    serviceValues[item.key] = value ?? false;
+                                  });
+                                },
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                              ),
                             },
-                            // child: isLoading
-                            //     ? CircularProgressIndicator()
-                            //     : Text('Registration Submit'),
-                          ),
-                        )
-                      ],
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 5.0, right: 5.0),
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.only(
+                                    left: 15.0, right: 15.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 20.0, bottom: 20.0),
+                                      child: Wrap(
+                                        spacing: 10.0,
+                                        runSpacing: 10.0,
+                                        children: <Widget>[
+                                          SizedBox(
+                                            width: 200,
+                                            child: FloatingActionButton.extended(
+                                                onPressed: () => _pickFiles(),
+                                                label: Text(_multiPick
+                                                    ? 'Choose  Car\'s Image'
+                                                    : 'Choose  Car\'s Image'),
+                                                icon: const Icon(
+                                                    Icons.description)),
+                                          ),
+                                          SizedBox(
+                                            width: 200,
+                                            child:
+                                                FloatingActionButton.extended(
+                                              onPressed: () =>
+                                                  _clearCachedFiles(),
+                                              label: const Text(
+                                                  'Clear all Images '),
+                                              icon: const Icon(
+                                                  Icons.delete_forever),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Divider(),
+                                    SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    Text(
+                                      'Review Images Chosen',
+                                      textAlign: TextAlign.start,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    // Builder(
+                                    //   builder: (BuildContext context) => _isLoading
+                                    //       ? Row(
+                                    //           children: [
+                                    //             Expanded(
+                                    //               child: Center(
+                                    //                 child: Padding(
+                                    //                   padding: const EdgeInsets
+                                    //                       .symmetric(
+                                    //                     vertical: 40.0,
+                                    //                   ),
+                                    //                   child:
+                                    //                       const CircularProgressIndicator(),
+                                    //                 ),
+                                    //               ),
+                                    //             ),
+                                    //           ],
+                                    //         )
+                                    //       : _userAborted
+                                    //           ? Row(
+                                    //               children: [
+                                    //                 Expanded(
+                                    //                   child: Center(
+                                    //                     child: SizedBox(
+                                    //                       width: 300,
+                                    //                       child: ListTile(
+                                    //                         leading: Icon(
+                                    //                           Icons.error_outline,
+                                    //                         ),
+                                    //                         contentPadding:
+                                    //                             EdgeInsets
+                                    //                                 .symmetric(
+                                    //                                     vertical:
+                                    //                                         40.0),
+                                    //                         title: const Text(
+                                    //                           'User has aborted the dialog',
+                                    //                         ),
+                                    //                       ),
+                                    //                     ),
+                                    //                   ),
+                                    //                 ),
+                                    //               ],
+                                    //             )
+                                    //           : _directoryPath != null
+                                    //               ? ListTile(
+                                    //                   title: const Text(
+                                    //                       'Directory path'),
+                                    //                   subtitle:
+                                    //                       Text(_directoryPath!),
+                                    //                 )
+                                    //               : _paths != null
+                                    //                   ? Container(
+                                    //                       padding: const EdgeInsets
+                                    //                           .symmetric(
+                                    //                         vertical: 20.0,
+                                    //                       ),
+                                    //                       height:
+                                    //                           MediaQuery.of(context)
+                                    //                                   .size
+                                    //                                   .height *
+                                    //                               0.50,
+                                    //                       child: Scrollbar(
+                                    //                           child: ListView
+                                    //                               .separated(
+                                    //                         itemCount: _paths !=
+                                    //                                     null &&
+                                    //                                 _paths!
+                                    //                                     .isNotEmpty
+                                    //                             ? _paths!.length
+                                    //                             : 1,
+                                    //                         itemBuilder:
+                                    //                             (BuildContext
+                                    //                                     context,
+                                    //                                 int index) {
+                                    //                           final bool
+                                    //                               isMultiPath =
+                                    //                               _paths != null &&
+                                    //                                   _paths!
+                                    //                                       .isNotEmpty;
+                                    //                           final String name = 'File $index: ${isMultiPath
+                                    //                                   ? _paths!
+                                    //                                           .map((e) => e
+                                    //                                               .name)
+                                    //                                           .toList()[
+                                    //                                       index]
+                                    //                                   : _fileName ??
+                                    //                                       '...'}';
+                                    //                           final path = kIsWeb
+                                    //                               ? null
+                                    //                               : _paths!
+                                    //                                   .map((e) =>
+                                    //                                       e.path)
+                                    //                                   .toList()[
+                                    //                                       index]
+                                    //                                   .toString();
+                                    //
+                                    //                           return ListTile(
+                                    //                             title: Text(
+                                    //                               name,
+                                    //                             ),
+                                    //                             subtitle: Text(
+                                    //                                 path ?? ''),
+                                    //                           );
+                                    //                         },
+                                    //                         separatorBuilder:
+                                    //                             (BuildContext
+                                    //                                         context,
+                                    //                                     int index) =>
+                                    //                                 const Divider(),
+                                    //                       )),
+                                    //                     )
+                                    //                   : _saveAsFileName != null
+                                    //                       ? ListTile(
+                                    //                           title: const Text(
+                                    //                               'Save file'),
+                                    //                           subtitle: Text(
+                                    //                               _saveAsFileName!),
+                                    //                         )
+                                    //                       : const SizedBox(),
+                                    // ),
+                                    Builder(
+                                      builder: (BuildContext context) =>
+                                          _isLoading
+                                              ? Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            vertical: 40.0,
+                                                          ),
+                                                          child:
+                                                              const CircularProgressIndicator(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : _userAborted
+                                                  ? Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Center(
+                                                            child: SizedBox(
+                                                              width: 300,
+                                                              child: ListTile(
+                                                                leading: Icon(
+                                                                  Icons
+                                                                      .error_outline,
+                                                                ),
+                                                                contentPadding:
+                                                                    EdgeInsets
+                                                                        .symmetric(
+                                                                  vertical:
+                                                                      40.0,
+                                                                ),
+                                                                title:
+                                                                    const Text(
+                                                                  'User has aborted the dialog',
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : _directoryPath != null
+                                                      ? ListTile(
+                                                          title: const Text(
+                                                              'Directory path'),
+                                                          subtitle: Text(
+                                                              _directoryPath!),
+                                                        )
+                                                      : _paths != null
+                                                          ? Container(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                vertical: 20.0,
+                                                              ),
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.50,
+                                                              child: Scrollbar(
+                                                                child: ListView
+                                                                    .separated(
+                                                                  itemCount: _paths !=
+                                                                              null &&
+                                                                          _paths!
+                                                                              .isNotEmpty
+                                                                      ? _paths!
+                                                                          .length
+                                                                      : 1,
+                                                                  itemBuilder:
+                                                                      (BuildContext
+                                                                              context,
+                                                                          int index) {
+                                                                    if (_paths ==
+                                                                            null ||
+                                                                        _paths!
+                                                                            .isEmpty) {
+                                                                      return Center(
+                                                                          child:
+                                                                              Text('No files selected'));
+                                                                    }
+
+                                                                    final String
+                                                                        fileName =
+                                                                        _paths![index]
+                                                                            .name;
+                                                                    final String
+                                                                        filePath =
+                                                                        _paths![index].path ??
+                                                                            '';
+
+                                                                    // Kiểm tra nếu đường dẫn là null (đối với web)
+                                                                    if (filePath
+                                                                        .isEmpty) {
+                                                                      return ListTile(
+                                                                        title: Text(
+                                                                            'File $index: $fileName'),
+                                                                        subtitle:
+                                                                            Text('No local path'),
+                                                                      );
+                                                                    }
+
+                                                                    // Hiển thị hình ảnh nếu đường dẫn hợp lệ
+                                                                    if (fileName.toLowerCase().endsWith('.jpg') ||
+                                                                        fileName
+                                                                            .toLowerCase()
+                                                                            .endsWith(
+                                                                                '.jpeg') ||
+                                                                        fileName
+                                                                            .toLowerCase()
+                                                                            .endsWith('.png')) {
+                                                                      return ListTile(
+                                                                        title: Text(
+                                                                            'Image $index: $fileName'),
+                                                                        subtitle:
+                                                                            Image.file(File(filePath)),
+                                                                      );
+                                                                    }
+
+                                                                    // Hiển thị thông tin tệp cho các tệp khác
+                                                                    return ListTile(
+                                                                      title: Text(
+                                                                          'File $index: $fileName'),
+                                                                      subtitle:
+                                                                          Text(
+                                                                              filePath),
+                                                                    );
+                                                                  },
+                                                                  separatorBuilder:
+                                                                      (BuildContext context,
+                                                                              int index) =>
+                                                                          const Divider(),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : _saveAsFileName !=
+                                                                  null
+                                                              ? ListTile(
+                                                                  title: const Text(
+                                                                      'Save file'),
+                                                                  subtitle: Text(
+                                                                      _saveAsFileName!),
+                                                                )
+                                                              : const SizedBox(),
+                                    ),
+
+                                    SizedBox(
+                                      height: 40.0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: FloatingActionButton.extended(
+                                label: const Text('Submit this Car'),
+                                icon: const Icon(Icons.upgrade_outlined),
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    try {
+                                      _sendData();
+                                    } finally {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  }
+                                },
+                                // child: isLoading
+                                //     ? CircularProgressIndicator()
+                                //     : Text('Registration Submit'),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
     );
   }
 }

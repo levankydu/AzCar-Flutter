@@ -1,7 +1,4 @@
-import 'package:az_car_flutter_app/data/carModel.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import 'ExtraFee.dart';
 
 class OrderDetailsRaw {

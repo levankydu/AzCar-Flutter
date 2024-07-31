@@ -113,7 +113,7 @@ class _AccordionPageState extends State<AccordionPage> {
                       Row(
                         children: [
                           Text(
-                            '\$${_carsFuture![index].discount > 0 ? (_carsFuture![index].price - (_carsFuture![index].discount * _carsFuture![index].price / 100)).toStringAsFixed(2) : _carsFuture![index].price}',
+                            '${_carsFuture![index].discount > 0 ? (_carsFuture![index].price - (_carsFuture![index].discount * _carsFuture![index].price / 100)).toStringAsFixed(2) : _carsFuture![index].price}',
                             style: GoogleFonts.poppins(
                               color: themeData.secondaryHeaderColor,
                               fontSize: size.width * 0.06,
@@ -121,7 +121,7 @@ class _AccordionPageState extends State<AccordionPage> {
                             ),
                           ),
                           Text(
-                            '/per day',
+                            'VND/ day',
                             style: GoogleFonts.poppins(
                               color: themeData.primaryColor.withOpacity(0.8),
                               fontSize: size.width * 0.03,

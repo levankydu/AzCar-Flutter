@@ -1,7 +1,6 @@
 import 'package:az_car_flutter_app/data/user_model.dart';
 import 'package:az_car_flutter_app/page/home_page.dart';
 import 'package:az_car_flutter_app/page/DepositPage.dart';
-
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
@@ -223,7 +222,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   icon: Icon(
                     CommunityMaterialIcons.cog,
                     color: themeData.secondaryHeaderColor,
-                    size: 12,
+                    size: 35,
                   ),
                   onSelected: (String value) {
                     if (value == 'changePassword') {

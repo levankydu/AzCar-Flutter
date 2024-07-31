@@ -12,6 +12,7 @@ class UserModel {
   final String image;
   final double? balance;
   late String resetPasswordToken;
+  late bool enabled;
 
   UserModel({
     required this.image,
@@ -24,6 +25,7 @@ class UserModel {
     required this.dob,
     required this.resetPasswordToken,
     required this.balance,
+    required this.enabled,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class UserModel {
       image: json['image'] ?? '',
       balance: json['balance'],
       resetPasswordToken: json['resetPasswordToken'] ?? '',
+      enabled: json['enabled']?? false,
     );
   }
 
@@ -53,6 +56,7 @@ class UserModel {
       'image': image,
       'balance': balance,
       'resetPasswordToken': resetPasswordToken,
+      'enabled': enabled,
     };
   }
 }
